@@ -1,0 +1,25 @@
+{
+  "name": "superer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SUPERER. Super wasn't enough.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/",
+    "build": "node --test tests/ && node scripts/build.mjs",
+    "assets": "node scripts/build-assets.mjs",
+    "check": "node scripts/check-layout.mjs",
+    "validate": "html-validate dist/index.html",
+    "serve": "node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.8",
+    "html-validate": "^10.0.0",
+    "playwright": "^1.56.0",
+    "serve": "^14.2.5"
+  }
+}
