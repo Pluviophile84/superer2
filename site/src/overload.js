@@ -55,7 +55,13 @@ export function glyphTransform({ x, y, rotation }) {
   return `translate(${x.toFixed(3)},${y.toFixed(3)}) rotate(${rotation.toFixed(3)}) scale(${GLYPH_SCALE},-${GLYPH_SCALE})`;
 }
 
-/** Version name for a total ER count: 0 -> SUPER, 1 -> SUPERER, 2 -> SUPERERER... */
-export function versionName(totalERs) {
-  return "SUPER" + "ER".repeat(Math.max(0, totalERs));
+/**
+ * Version name for an ER count. Every ER in the word counts:
+ * SUPER already has one, so 1 -> SUPER, 2 -> SUPERER (canonical), 3 -> SUPERERER.
+ */
+export function versionName(erCount) {
+  return "SUP" + "ER".repeat(Math.max(1, erCount));
 }
+
+/** Extra ERs beyond the canonical SUPERER, i.e. what the overload curve draws. */
+export const extraERs = (erCount) => Math.max(0, erCount - 2);
