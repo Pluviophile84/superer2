@@ -113,6 +113,14 @@ for (const variant of VARIANTS) {
     const headerH = await page.evaluate(() => document.querySelector("[data-site-header]").getBoundingClientRect().height);
     if (vp.landscape && headerH > vp.height * 0.2) fail(`header is ${headerH}px of ${vp.height}px`);
 
+    // The setup headline always breaks as SUPER WASN'T / ENOUGH. (two lines).
+    const setupLines = await page.locator(".hero-setup-line").evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+    });
+    if (setupLines !== 2) fail(`setup headline renders on ${setupLines} lines, expected 2`);
+
     // The browser's own accessible name for the h1 (role img SVG -> aria-label).
     const h1Named = await page.getByRole("heading", { level: 1, name: "INTRODUCING. SUPERER", exact: true }).count();
     if (h1Named !== 1) fail("h1 accessible name is not exactly \"INTRODUCING. SUPERER\"");

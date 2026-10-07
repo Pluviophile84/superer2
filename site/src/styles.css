@@ -410,11 +410,12 @@ main:focus {
   background: var(--ink);
 }
 
-/* "SUPER WASN'T" is 6.82em wide. Spanning columns 1-9 with a 138px cap keeps
-   it on one line at every desktop width (the container tops out at 1280px),
-   so the line breaks as SUPER WASN'T / ENOUGH. */
+/* "SUPER WASN'T" is 6.82em wide, and the line must always break as
+   SUPER WASN'T / ENOUGH. Below 1024px the headline spans the content width,
+   so its size is that width / 7. From 1024px it spans columns 1-9: 9vw,
+   capped at 138px because the container tops out at 1280px. */
 .hero-setup-line {
-  font-size: clamp(56px, 9vw, 138px);
+  font-size: calc((100vw - 2 * var(--gutter)) / 7);
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: -0.045em;
@@ -429,16 +430,27 @@ main:focus {
 
 .hero-note-body,
 .hero-note-mute {
-  font-size: 1.25rem;
-  line-height: 1.3;
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.25rem);
+  line-height: 1.35;
 }
 
 .hero-note-mute {
-  margin-top: 8px;
   color: var(--mute);
 }
 
-@media (min-width: 768px) {
+/* Below 1024px the note sits under the headline as two columns:
+   ink lines on the left, mute lines on the right. */
+.hero-note {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(16px, 4vw, 32px);
+}
+
+.hero-note-label {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 1024px) {
   .hero-setup {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: 24px;
@@ -449,20 +461,19 @@ main:focus {
       align-items: last baseline;
     }
   }
-  .hero-setup-main {
-    grid-column: 1 / 8;
+  .hero-setup-line {
+    font-size: clamp(56px, 9vw, 138px);
   }
-  .hero-note {
-    grid-column: 8 / 13;
-  }
-}
-
-@media (min-width: 1024px) {
   .hero-setup-main {
     grid-column: 1 / 10;
   }
+  /* Desktop: the note is one column, bottom-aligned with the headline. */
   .hero-note {
+    display: block;
     grid-column: 10 / 13;
+  }
+  .hero-note-mute {
+    margin-top: 8px;
   }
 }
 
@@ -495,11 +506,13 @@ main:focus {
 
 .hero-meta {
   margin-top: 12px;
+  text-align: right;
 }
 
 @media (min-width: 768px) {
   /* Right end of the INTRODUCING. line, sharing its bottom edge. */
   .hero-meta {
+    text-align: left;
     position: absolute;
     top: clamp(16px, 2.5vw, 32px);
     right: 0;
@@ -512,19 +525,34 @@ main:focus {
 
 /* Row 3: data strip. Mobile: label/value rows; desktop: three cells. */
 .hero-data {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 0;
 }
 
 .hero-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 16px 16px 0;
+}
+
+.hero-cell:nth-child(2) {
+  padding-left: 16px;
+  border-left: var(--rule);
+}
+
+/* STATUS: full width, label left and word right. */
+.hero-cell:nth-child(3) {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-areas: "label value" "foot foot";
   align-items: center;
-  gap: 4px 16px;
-  padding-block: 14px;
-}
-
-.hero-cell + .hero-cell {
+  gap: 8px 16px;
+  padding-right: 0;
   border-top: var(--rule);
 }
 
@@ -558,22 +586,23 @@ main:focus {
 
 @media (min-width: 768px) {
   .hero-data {
-    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .hero-cell {
+  .hero-cell,
+  .hero-cell:nth-child(3) {
+    grid-column: auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
     padding: 20px 24px;
+    border-top: 0;
   }
   .hero-cell:first-child {
     padding-left: 0;
   }
   .hero-cell + .hero-cell {
-    border-top: 0;
     border-left: var(--rule);
   }
 }
