@@ -746,6 +746,26 @@ main:focus {
   padding: 12px;
 }
 
+/* Below 768px BUY and FOLLOW ON X sit side by side at exactly equal width. */
+@media (max-width: 767.98px) {
+  .deploy .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .deploy .actions .btn {
+    width: 100%;
+    min-width: 0;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .deploy .actions .btn {
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+  }
+}
+
 @container (min-width: 560px) {
   .spec-row {
     grid-template-columns: minmax(180px, 30%) 1fr;

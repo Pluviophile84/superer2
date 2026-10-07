@@ -121,6 +121,21 @@ for (const variant of VARIANTS) {
     });
     if (setupLines !== 2) fail(`setup headline renders on ${setupLines} lines, expected 2`);
 
+    // Deployment band: below 768px BUY and FOLLOW ON X sit side by side at
+    // equal width, and neither label is clipped.
+    if (vp.width < 768) {
+      const btns = await page.$$eval("#deployment .actions .btn", (els) =>
+        els.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { top: Math.round(r.top), width: Math.round(r.width), clipped: el.scrollWidth > el.clientWidth };
+        }),
+      );
+      const [a, b] = btns;
+      if (btns.length !== 2 || a.top !== b.top || Math.abs(a.width - b.width) > 1 || a.clipped || b.clipped) {
+        fail(`deployment buttons not side by side at equal width: ${JSON.stringify(btns)}`);
+      }
+    }
+
     // Each note line stays on one row (two rows per block) and never overflows.
     {
       const noteRows = await page.$$eval(".hero-note-body, .hero-note-mute", (els) =>
