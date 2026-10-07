@@ -438,16 +438,31 @@ main:focus {
   color: var(--mute);
 }
 
-/* Below 1024px the note sits under the headline as two columns:
-   ink lines on the left, mute lines on the right. */
+/* Below 1024px the note sits under the headline: ink lines left, mute
+   lines right. Each line stays on one row; when both blocks don't fit side
+   by side, the mute block moves below instead of wrapping its lines. */
 .hero-note {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: clamp(16px, 4vw, 32px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px clamp(16px, 4vw, 32px);
 }
 
 .hero-note-label {
-  grid-column: 1 / -1;
+  flex: 0 0 100%;
+  margin-bottom: 4px;
+}
+
+.hero-note-body,
+.hero-note-mute {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+  .hero-note-body,
+  .hero-note-mute {
+    font-size: 1rem;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -471,6 +486,11 @@ main:focus {
   .hero-note {
     display: block;
     grid-column: 10 / 13;
+  }
+  /* One row per line here too; the narrow column (10-12) sets the size. */
+  .hero-note-body,
+  .hero-note-mute {
+    font-size: min(1.25rem, 1.5vw);
   }
   .hero-note-mute {
     margin-top: 8px;
@@ -1034,8 +1054,8 @@ main:focus {
   height: calc(var(--term-lines) * var(--term-lh) + 24px);
   padding: 12px;
   overflow: hidden;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--mono);
   font-size: 0.875rem;
   line-height: var(--term-lh);
@@ -1065,7 +1085,6 @@ main:focus {
 }
 
 .term-cmd {
-  color: var(--paper);
   font-weight: 600;
 }
 
@@ -1102,7 +1121,7 @@ main:focus {
   width: 0.6em;
   height: 1.1em;
   vertical-align: text-bottom;
-  background: var(--paper);
+  background: currentColor;
   animation: blink 1s steps(1, end) infinite;
 }
 

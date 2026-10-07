@@ -121,6 +121,21 @@ for (const variant of VARIANTS) {
     });
     if (setupLines !== 2) fail(`setup headline renders on ${setupLines} lines, expected 2`);
 
+    // Each note line stays on one row (two rows per block) and never overflows.
+    {
+      const noteRows = await page.$$eval(".hero-note-body, .hero-note-mute", (els) =>
+        els.map((el) => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const rows = new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+          const note = el.closest(".hero-note").getBoundingClientRect();
+          const overflow = el.getBoundingClientRect().right > note.right + 0.5 || el.scrollWidth > el.clientWidth + 0.5;
+          return overflow ? -rows : rows;
+        }),
+      );
+      if (noteRows.some((n) => n !== 2)) fail(`hero note rows ${noteRows.join("/")}, expected 2/2 (negative = overflow)`);
+    }
+
     // The browser's own accessible name for the h1 (role img SVG -> aria-label).
     const h1Named = await page.getByRole("heading", { level: 1, name: "INTRODUCING. SUPERER", exact: true }).count();
     if (h1Named !== 1) fail("h1 accessible name is not exactly \"INTRODUCING. SUPERER\"");
