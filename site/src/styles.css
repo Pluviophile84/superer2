@@ -410,12 +410,13 @@ main:focus {
   background: var(--ink);
 }
 
-/* "SUPER WASN'T" is 6.82em wide, and the line must always break as
-   SUPER WASN'T / ENOUGH. Below 1024px the headline spans the content width,
-   so its size is that width / 7. From 1024px it spans columns 1-9: 9vw,
-   capped at 138px because the container tops out at 1280px. */
+/* "SUPER WASN'T" is 6.82em wide, and the line always breaks as
+   SUPER WASN'T / ENOUGH. It is the setup, not the star: sized at 80% of what
+   would fill its space, so the SUPERER wordmark stays the dominant element.
+   Below 1024px: 80% of content width / 7. From 1024px (columns 1-9):
+   7.2vw, 45-110px. */
 .hero-setup-line {
-  font-size: calc((100vw - 2 * var(--gutter)) / 7);
+  font-size: calc((100vw - 2 * var(--gutter)) / 7 * 0.8);
   font-weight: 700;
   line-height: 0.9;
   letter-spacing: -0.045em;
@@ -477,7 +478,7 @@ main:focus {
     }
   }
   .hero-setup-line {
-    font-size: clamp(56px, 9vw, 138px);
+    font-size: clamp(45px, 7.2vw, 110px);
   }
   .hero-setup-main {
     grid-column: 1 / 10;
