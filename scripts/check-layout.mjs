@@ -113,8 +113,13 @@ for (const variant of VARIANTS) {
     const headerH = await page.evaluate(() => document.querySelector("[data-site-header]").getBoundingClientRect().height);
     if (vp.landscape && headerH > vp.height * 0.2) fail(`header is ${headerH}px of ${vp.height}px`);
 
+    // The browser's own accessible name for the h1 (role img SVG -> aria-label).
+    const h1Named = await page.getByRole("heading", { level: 1, name: "INTRODUCING. SUPERER", exact: true }).count();
+    if (h1Named !== 1) fail("h1 accessible name is not exactly \"INTRODUCING. SUPERER\"");
+
     if (shots) {
       await shot("#announcement", "hero");
+      await shot("#deployment", "deployment");
       if (hasNaming) await shot("#naming-history", "naming-history");
       await shot("#benchmarks", "benchmarks");
     }

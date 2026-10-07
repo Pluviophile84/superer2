@@ -10,7 +10,8 @@ const visibleText = (html) =>
   html
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<script[\s\S]*?<\/script>/g, "")
-    .replace(/<[^>]+>/g, " ");
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ");
 const labels = (html) => [...html.matchAll(/<p class="sec-label"[^>]*>(SEC\.\d\d) \/ ([A-Z ]+)</g)].map((m) => `${m[1]} ${m[2]}`);
 const coords = (html) => [...html.matchAll(/<span class="sec-coord" aria-hidden="true">(ER\.\d\d)</g)].map((m) => m[1]);
 
@@ -48,17 +49,17 @@ test("bridge off: no SI / naming-history references remain", () => {
   const text = visibleText(build(false));
   assert.doesNotMatch(text, /\bSI\b/);
   assert.doesNotMatch(text, /INTELLIGENCE IMPROVED|NAMING POLL|ARTIFICIAL|EXECUTIVE ORDER|NAME LENGTH|Letters measured|Who approved/i);
-  assert.match(text, /SAME INTELLIGENCE\. MORE ER\./);
+  assert.match(text, /Same intelligence\. More ER\./);
   assert.match(text, /ADD ER\. IT IS ALWAYS AN UPGRADE\./);
   assert.match(text, /PREVIOUS NAMES\s+SUPER \(DEPRECATED: NOT ENOUGH\)/);
 });
 
 test("bridge on: bridge-only copy present, bridge-off copy absent", () => {
   const text = visibleText(build(true));
-  assert.match(text, /AI WAS RENAMED SI\. WE RENAMED IT AGAIN\./);
+  assert.match(text, /AI was renamed SI\. We renamed it again\./);
   assert.match(text, /IT'S HOW UPGRADES WORK NOW\./);
   assert.match(text, /ARTIFICIAL \(DEPRECATED: SOUNDED FAKE\) · SUPER \(DEPRECATED: NOT ENOUGH\)/);
-  assert.doesNotMatch(text, /SAME INTELLIGENCE\. MORE ER\./);
+  assert.doesNotMatch(text, /Same intelligence\. More ER\./);
 });
 
 test("hero heading is INTRODUCING. + the wordmark, no duplicated name", () => {
@@ -83,33 +84,103 @@ test("no SEC.00 bridge strip and no AI → SI → SUPERER eyebrow anywhere", () 
   }
 });
 
-test("hero order: setup line, h1 (INTRODUCING. + wordmark), support line, in both bridge modes", () => {
-  const support = { true: "AI WAS RENAMED SI. WE RENAMED IT AGAIN.", false: "SAME INTELLIGENCE. MORE ER." };
+const heroOf = (html) => html.match(/<section class="sec sec--hero"[\s\S]*?<\/section>/)[0];
+const h1Of = (html) => html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1];
+/** Accessible name of the h1: its text, with role="img" SVGs read as their aria-label. */
+const accessibleName = (h1) =>
+  h1
+    .replace(/<svg[^>]*aria-label="([^"]*)"[\s\S]*?<\/svg>/g, " $1 ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+test("hero grid order: eyebrow, setup line, note, h1 (INTRODUCING. + wordmark), meta, data strip, base row", () => {
+  const note = { true: "AI was renamed SI. We renamed it again.", false: "Same intelligence. More ER." };
   for (const bridge of [true, false]) {
-    const hero = build(bridge).match(/<section class="sec sec--hero"[\s\S]*?<div class="deploy"/)[0];
-    // Top-level elements of the hero copy block, in DOM order.
-    const blocks = [...hero.matchAll(/^    <(p|h1)\b[^>]*>([\s\S]*?)<\/\1>$/gm)].map((m) => [m[1], visibleText(m[2]).replace(/\s+/g, " ").trim()]);
-    assert.deepEqual(blocks, [
-      ["p", "SEC.01 / ANNOUNCEMENT"],
-      ["p", "SUPER WASN'T ENOUGH."],
-      ["h1", "INTRODUCING."],
-      ["p", support[bridge]],
-    ], `bridge ${bridge}`);
-    const h1 = hero.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1];
-    assert.match(h1, /^<span class="hero-intro">INTRODUCING\.<\/span>\s*<svg data-master[^>]*role="img" aria-label="SUPERER"[\s\S]*<\/svg>$/);
-    assert.doesNotMatch(h1, /WASN'T ENOUGH/);
+    const hero = heroOf(build(bridge));
+    const at = (needle) => {
+      const i = hero.indexOf(needle);
+      assert.ok(i >= 0, `${needle} missing (bridge ${bridge})`);
+      return i;
+    };
+    const order = [
+      'class="hero-eyebrow"',
+      'class="hero-setup-line"',
+      'class="hero-note"',
+      "<h1",
+      'class="hero-meta"',
+      'class="hero-row hero-data"',
+      'class="hero-row hero-base"',
+    ].map(at);
+    assert.deepEqual(order, [...order].sort((a, b) => a - b), `DOM order (bridge ${bridge})`);
+    const text = visibleText(hero);
+    assert.match(text, /RELEASE NOTE · CANONICAL BUILD/);
+    assert.match(text, /THE FIX \/ v1\.0\.0/);
+    assert.ok(text.includes(note[bridge]), `note (bridge ${bridge})`);
+    assert.match(text, /Intelligence: unchanged\. ER: doubled\./);
+    assert.match(text, /7 LETTERS · 2 ER · CANONICAL/);
+    assert.match(text, /TOTAL ER 02 \+1 VS SUPER INTELLIGENCE 100 CHANGE: 0% STATUS CANONICAL THERE IS ONLY ONE SUPERER\./);
+    assert.match(text, /INTELLIGENCE HELD CONSTANT\. UPGRADES ARE CONTENT, NOT TOKENS\./);
   }
 });
 
-test("hero says WASN'T ENOUGH / NOT ENOUGH exactly once, in both bridge modes", () => {
+test("h1 contains exactly INTRODUCING. + the wordmark; accessible name is INTRODUCING. SUPERER", () => {
+  for (const bridge of [true, false]) {
+    const h1 = h1Of(heroOf(build(bridge)));
+    assert.match(h1, /^<span class="hero-intro">INTRODUCING\.<\/span>\s*<svg data-master[^>]*role="img" aria-label="SUPERER"[\s\S]*<\/svg>$/);
+    assert.equal(accessibleName(h1), "INTRODUCING. SUPERER");
+  }
+});
+
+test("hero wordmark uses the tight viewBox; paths untouched", () => {
+  const svg = h1Of(source).match(/<svg[^>]*>/)[0];
+  assert.match(svg, /viewBox="38 27 982 167"/);
+});
+
+test("the setup line is outside the h1 and before it", () => {
+  const hero = heroOf(source);
+  assert.ok(hero.indexOf("SUPER WASN’T ENOUGH.") < hero.indexOf("<h1"));
+  assert.doesNotMatch(h1Of(hero), /WASN/);
+});
+
+test("WASN'T ENOUGH appears exactly once in the hero (no other NOT ENOUGH), in both bridge modes", () => {
+  for (const bridge of [true, false]) {
+    const hero = visibleText(heroOf(build(bridge)));
+    assert.equal(hero.match(/WASN['’]T ENOUGH|NOT ENOUGH/gi)?.length, 1, `bridge ${bridge}`);
+    assert.match(hero, /SUPER WASN’T ENOUGH\./, "typographic apostrophe");
+  }
+});
+
+test("the deployment band follows the hero and the hero contains no contract address", () => {
   for (const bridge of [true, false]) {
     const html = build(bridge);
-    const hero = visibleText(html.match(/<section class="sec sec--hero"[\s\S]*?<\/section>/)[0]);
-    assert.equal(hero.match(/WASN'T ENOUGH|NOT ENOUGH/gi)?.length, 1, `bridge ${bridge}`);
-    assert.match(hero, /SUPER WASN'T ENOUGH\./);
-    assert.doesNotMatch(hero, /SUPER ALREADY HAD ONE ER/);
+    const afterHero = html.slice(html.indexOf("</section>", html.indexOf('class="sec sec--hero"')) + "</section>".length);
+    assert.match(afterHero, /^\s*<section class="sec sec--ink sec--deploy" id="deployment"/, `bridge ${bridge}`);
+    const band = afterHero.match(/<section class="sec sec--ink sec--deploy"[\s\S]*?<\/section>/)[0];
+    for (const needle of ["CONTRACT ADDRESS", "data-copy-ca", "CHAIN", "VERSION", "STATUS", "BUY $SUPERER", "FOLLOW ON X"]) {
+      assert.ok(band.includes(needle), `deployment band has ${needle}`);
+    }
+    const hero = heroOf(html);
+    assert.doesNotMatch(hero, /CONTRACT ADDRESS|data-copy-ca|SITE:ca-|NOT YET DEPLOYED|class="ca/);
   }
-  assert.match(visibleText(build(true)), /AI WAS RENAMED SI\. WE RENAMED IT AGAIN\./);
+});
+
+test("section rhythm: ink and paper sections in the specified order", () => {
+  const html = build(true);
+  const blocks = [...html.matchAll(/<(section|div) class="sec([^"]*)"(?: id="([^"]+)")?/g)].map((m) => [m[3] || m[2].trim(), /sec--ink/.test(m[2]) ? "ink" : "paper"]);
+  assert.deepEqual(blocks, [
+    ["announcement", "paper"],
+    ["deployment", "ink"],
+    ["naming-history", "paper"],
+    ["benchmarks", "ink"],
+    ["console", "paper"],
+    ["renaming-office", "ink"],
+    ["model-card", "paper"],
+    ["changelog", "paper"],
+    ["sec--ink sec--canon", "ink"],
+    ["limitations", "paper"],
+    ["faq", "paper"],
+  ]);
 });
 
 test("FAQ: SUPER already had an ER. Why add another? For redundancy.", () => {
