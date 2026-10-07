@@ -18,7 +18,6 @@ export function initOffice({ root, siteUrl }) {
   const shareStatus = root.querySelector("[data-office-share-status]");
   const status = root.querySelector("[data-office-status]");
 
-  const canvas = document.createElement("canvas");
   const shareUrl = siteUrl || location.href.split("#")[0];
   const host = siteUrl ? new URL(siteUrl).host : location.host;
 
@@ -62,15 +61,32 @@ export function initOffice({ root, siteUrl }) {
       return;
     }
     denied.hidden = true;
+    // Fonts are loaded once; nothing is awaited between clearing and drawing,
+    // and every card is drawn on its own offscreen canvas, never the preview.
     await loadCardFonts();
     if (id !== job) return;
-    drawCard(canvas, { ...result, notice, filed, host });
+    const canvas = drawCard(document.createElement("canvas"), { ...result, notice, filed, host });
     const blob = await cardBlob(canvas);
     if (id !== job) return;
     const url = URL.createObjectURL(blob);
-    if (current) URL.revokeObjectURL(current.url);
+    // Decode the new card off-DOM first. The visible preview keeps the old
+    // card until the decoded one replaces it in a single src swap.
+    const next = new Image();
+    next.src = url;
+    try {
+      await next.decode();
+    } catch {
+      // Decoding failed or is unsupported: swap anyway, the img decodes it.
+    }
+    if (id !== job) {
+      URL.revokeObjectURL(url);
+      return;
+    }
+    const previous = current;
     current = { result, blob, url };
     preview.src = url;
+    // Revoke the old card only after the swap.
+    if (previous) URL.revokeObjectURL(previous.url);
     preview.alt = `Renaming notice: ${result.from} shall be known as ${result.to}.`;
     preview.hidden = false;
     actions.hidden = false;

@@ -168,7 +168,6 @@ main:focus {
 }
 
 .sec-label,
-.bridge-line,
 .eyebrow,
 .footnote,
 .deploy-title,
@@ -369,41 +368,11 @@ main:focus {
   gap: 8px;
 }
 
-/* ---------- SEC.00 bridge ---------- */
-
-.bridge {
-  padding-left: var(--rail);
-  border-top: var(--rule);
-}
-
-.bridge-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 16px;
-  padding-block: 10px;
-}
-
-.bridge .sec-label {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.bridge-line {
-  font-size: 0.875rem;
-}
-
 /* ---------- SEC.01 hero ---------- */
 
 .sec--hero {
   border-top: 0;
   padding-top: clamp(24px, 5vw, 64px);
-}
-
-.bridge + .sec--hero {
-  border-top: var(--rule);
 }
 
 .eyebrow {
@@ -688,8 +657,15 @@ main:focus {
   position: relative;
   aspect-ratio: 1044 / 520;
   border-bottom: 1px solid var(--paper);
-  overflow: hidden;
+  /* Clip the overflowing ERs without becoming a scroll container, so the
+     stage never captures scroll gestures. */
   overflow: clip;
+}
+
+@supports not (overflow: clip) {
+  .stage {
+    contain: paint;
+  }
 }
 
 /* Canonical SUPERER spans most of the stage on narrow screens; on wide
@@ -746,10 +722,11 @@ main:focus {
   font-size: 0.875rem;
 }
 
+/* Touch / narrow screens: the terminal is not a scroll container. It grows
+   with its content (console.js keeps only the last 8 output lines), so a
+   swipe that starts on it always scrolls the page. */
 .terminal {
-  height: 18rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  min-height: 9rem;
   padding: 12px;
   font-family: var(--mono);
   font-size: 0.875rem;
@@ -761,6 +738,14 @@ main:focus {
 @container (max-width: 559.98px) {
   .terminal {
     font-size: 0.75rem;
+  }
+}
+
+/* Desktop (fine pointer, >= 768px): fixed height with internal scroll. */
+@media (min-width: 768px) and (pointer: fine) {
+  .terminal {
+    height: 18rem;
+    overflow-y: auto;
   }
 }
 
@@ -1323,7 +1308,7 @@ main:focus {
   }
 }
 
-@media (min-width: 1440px) {
+@media (min-width: 1440px) and (pointer: fine) {
   .terminal {
     height: 22rem;
   }

@@ -4,7 +4,11 @@ import { overloadSpecs, syncGlyphs } from "./svg.js";
 import { HOT_ER, MASTER_LAYOUT, masterTransform } from "./glyphs.js";
 import { copyText } from "./copy.js";
 
-const MAX_LINES = 60;
+// Desktop keeps a scrollable history; touch/narrow screens keep only the
+// last few lines because the terminal grows instead of scrolling there.
+const MAX_LINES_DESKTOP = 60;
+const MAX_LINES_TOUCH = 8;
+const DESKTOP_TERMINAL = "(min-width: 768px) and (pointer: fine)";
 // Glyphs past this many extra ERs are far outside the clipped stage.
 const MAX_RENDERED_EXTRA = 30;
 // Above this ER count the readout uses the short form.
@@ -96,7 +100,26 @@ export function initConsole({ root, siteUrl, reducedMotion }) {
   const prompt = terminal.querySelector(".term-prompt");
 
   const state = createConsoleState();
+  const desktop = window.matchMedia(DESKTOP_TERMINAL);
   let shareTimer = 0;
+
+  // Remove the oldest output lines beyond the limit, then any spacer left
+  // dangling at the top. Older lines are removed, not scrolled.
+  function trim() {
+    const max = desktop.matches ? MAX_LINES_DESKTOP : MAX_LINES_TOUCH;
+    const output = terminal.querySelectorAll(".term-line:not(.term-gap)");
+    for (let i = 0; i < output.length - max; i++) {
+      const line = output[i];
+      while (line.previousElementSibling && line.previousElementSibling.classList.contains("term-gap")) {
+        line.previousElementSibling.remove();
+      }
+      line.remove();
+    }
+    const first = terminal.firstElementChild;
+    if (first && first.classList.contains("term-gap")) first.remove();
+    if (desktop.matches) terminal.scrollTop = terminal.scrollHeight;
+  }
+  desktop.addEventListener("change", trim);
 
   function renderStage(animate) {
     const n = state.count;
@@ -122,9 +145,7 @@ export function initConsole({ root, siteUrl, reducedMotion }) {
       frag.appendChild(p);
     });
     terminal.insertBefore(frag, prompt);
-    const all = terminal.querySelectorAll(".term-line");
-    for (let i = 0; i < all.length - (MAX_LINES - 1); i++) all[i].remove();
-    terminal.scrollTop = terminal.scrollHeight;
+    trim();
   }
 
   addBtn.addEventListener("click", () => {
