@@ -8,8 +8,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test tests/",
-    "build": "node --test tests/ && node scripts/build.mjs",
+    "test": "node --test",
+    "build": "node --test && node scripts/build.mjs",
     "assets": "node scripts/build-assets.mjs",
     "check": "node scripts/check-layout.mjs",
     "validate": "html-validate dist/index.html",
