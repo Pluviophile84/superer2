@@ -168,7 +168,6 @@ main:focus {
 }
 
 .sec-label,
-.bridge-line,
 .eyebrow,
 .footnote,
 .deploy-title,
@@ -369,41 +368,11 @@ main:focus {
   gap: 8px;
 }
 
-/* ---------- SEC.00 bridge ---------- */
-
-.bridge {
-  padding-left: var(--rail);
-  border-top: var(--rule);
-}
-
-.bridge-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 16px;
-  padding-block: 10px;
-}
-
-.bridge .sec-label {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.bridge-line {
-  font-size: 0.875rem;
-}
-
 /* ---------- SEC.01 hero ---------- */
 
 .sec--hero {
   border-top: 0;
   padding-top: clamp(24px, 5vw, 64px);
-}
-
-.bridge + .sec--hero {
-  border-top: var(--rule);
 }
 
 .eyebrow {

@@ -16,7 +16,6 @@ const coords = (html) => [...html.matchAll(/<span class="sec-coord" aria-hidden=
 
 test("bridge on: section order and labels", () => {
   assert.deepEqual(labels(build(true)), [
-    "SEC.00 BRIDGE",
     "SEC.01 ANNOUNCEMENT",
     "SEC.02 NAMING HISTORY",
     "SEC.03 BENCHMARKS",
@@ -75,4 +74,14 @@ test("ER counts in the static copy are the corrected ones", () => {
   assert.match(text, /ER\s+2 \(CANONICAL\)/);
   assert.match(text, /2 \(\+100% VS SUPER\)/);
   assert.doesNotMatch(text, /ER: 0|\+∞%|1 \(CANONICAL\)/);
+});
+
+test("the SEC.00 bridge strip is gone; the AI → SI line appears once, as the hero eyebrow", () => {
+  assert.doesNotMatch(source, /SEC\.00|class="bridge|bridge-line/);
+  const on = visibleText(build(true));
+  assert.equal(on.match(/AI → SI → SUPERER/g)?.length, 1);
+  assert.match(build(true), /<p class="eyebrow"><!-- SITE:bridge -->AI → SI → SUPERER<!-- \/SITE:bridge -->/);
+  const off = visibleText(build(false));
+  assert.doesNotMatch(off, /AI → SI/);
+  assert.match(off, /RELEASE NOTE · CANONICAL BUILD/);
 });

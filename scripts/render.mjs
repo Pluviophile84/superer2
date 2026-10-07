@@ -128,9 +128,7 @@ export function renumberSections(html) {
   let sec = 0;
   let er = 0;
   return html
-    .replace(/(<p class="sec-label"[^>]*>)SEC\.(\d\d) \//g, (whole, open, num) =>
-      num === "00" ? whole : `${open}SEC.${String(++sec).padStart(2, "0")} /`,
-    )
+    .replace(/(<p class="sec-label"[^>]*>)SEC\.\d\d \//g, (whole, open) => `${open}SEC.${String(++sec).padStart(2, "0")} /`)
     .replace(/(<span class="sec-coord" aria-hidden="true">)ER\.\d\d</g, (whole, open) =>
       `${open}ER.${String(++er).padStart(2, "0")}<`,
     );
