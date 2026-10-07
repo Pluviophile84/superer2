@@ -39,7 +39,7 @@ All launch values live in `site/src/config.js`:
 | `xUrl` | X profile URL. |
 | `siteUrl` | Canonical site URL (e.g. `https://superer.example`). Used for canonical, `og:url`, absolute social images and SHARE. |
 | `chain` | Shown in the deployment panel. |
-| `showLaunchMetaBridge` | `true` shows everything that references the AI → SI renaming: the hero eyebrow and support line, the NAMING HISTORY section, the NAME LENGTH benchmark, the AI/SI Renaming Office rules and one FAQ item. `false` removes all of it from the build and renumbers the remaining sections. |
+| `showLaunchMetaBridge` | `true` shows everything that references the AI → SI renaming: the hero support line, the NAMING HISTORY section, the NAME LENGTH benchmark, the AI/SI Renaming Office rules and one FAQ item. `false` removes all of it from the build and renumbers the remaining sections. |
 
 A value counts as a placeholder if it equals `"REPLACE_ME"` or is empty. URLs must start with `http://` or `https://`; the build rejects anything else.
 

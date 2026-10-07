@@ -76,14 +76,29 @@ test("ER counts in the static copy are the corrected ones", () => {
   assert.doesNotMatch(text, /ER: 0|\+∞%|1 \(CANONICAL\)/);
 });
 
-test("the SEC.00 bridge strip is gone; the AI → SI line appears once, as the hero eyebrow", () => {
-  assert.doesNotMatch(source, /SEC\.00|class="bridge|bridge-line/);
-  const on = visibleText(build(true));
-  assert.equal(on.match(/AI → SI → SUPERER/g)?.length, 1);
-  assert.match(build(true), /<p class="eyebrow"><!-- SITE:bridge -->AI → SI → SUPERER<!-- \/SITE:bridge -->/);
-  const off = visibleText(build(false));
-  assert.doesNotMatch(off, /AI → SI/);
-  assert.match(off, /RELEASE NOTE · CANONICAL BUILD/);
+test("no SEC.00 bridge strip and no AI → SI → SUPERER eyebrow anywhere", () => {
+  assert.doesNotMatch(source, /SEC\.00|class="bridge|bridge-line|class="eyebrow/);
+  for (const bridge of [true, false]) {
+    assert.doesNotMatch(visibleText(build(bridge)), /AI → SI → SUPERER/, `bridge ${bridge}`);
+  }
+});
+
+test("hero order: setup line, h1 (INTRODUCING. + wordmark), support line, in both bridge modes", () => {
+  const support = { true: "AI WAS RENAMED SI. WE RENAMED IT AGAIN.", false: "SAME INTELLIGENCE. MORE ER." };
+  for (const bridge of [true, false]) {
+    const hero = build(bridge).match(/<section class="sec sec--hero"[\s\S]*?<div class="deploy"/)[0];
+    // Top-level elements of the hero copy block, in DOM order.
+    const blocks = [...hero.matchAll(/^    <(p|h1)\b[^>]*>([\s\S]*?)<\/\1>$/gm)].map((m) => [m[1], visibleText(m[2]).replace(/\s+/g, " ").trim()]);
+    assert.deepEqual(blocks, [
+      ["p", "SEC.01 / ANNOUNCEMENT"],
+      ["p", "SUPER WASN'T ENOUGH."],
+      ["h1", "INTRODUCING."],
+      ["p", support[bridge]],
+    ], `bridge ${bridge}`);
+    const h1 = hero.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1];
+    assert.match(h1, /^<span class="hero-intro">INTRODUCING\.<\/span>\s*<svg data-master[^>]*role="img" aria-label="SUPERER"[\s\S]*<\/svg>$/);
+    assert.doesNotMatch(h1, /WASN'T ENOUGH/);
+  }
 });
 
 test("hero says WASN'T ENOUGH / NOT ENOUGH exactly once, in both bridge modes", () => {
