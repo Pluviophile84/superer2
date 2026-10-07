@@ -1005,6 +1005,217 @@ main:focus {
   color: var(--mute);
 }
 
+/* ---------- SEC.01 hero heading: "INTRODUCING." + wordmark ---------- */
+
+.hero-title {
+  display: block;
+}
+
+.hero-intro {
+  display: block;
+}
+
+.subnote {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- SEC.02 naming history ---------- */
+
+.timeline {
+  margin-top: clamp(24px, 4vw, 48px);
+  border-top: var(--rule);
+}
+
+.tl-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  padding-block: 14px;
+  border-bottom: var(--rule);
+}
+
+.tl-year {
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
+
+.tl-name {
+  font-weight: 700;
+  font-size: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Hot ER on paper only at >= 19px bold. */
+.tl-name .er {
+  color: var(--hot-er);
+}
+
+@media (min-width: 768px) {
+  .tl-row {
+    grid-template-columns: 9rem minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: baseline;
+  }
+}
+
+.chart-title {
+  margin-bottom: 8px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.track--bare {
+  background: transparent;
+}
+
+.bar--65 {
+  width: 65%;
+}
+
+.bar--35 {
+  width: 35%;
+}
+
+.bar--half {
+  width: 50%;
+}
+
+.bar--2of7 {
+  width: 28.5714%;
+}
+
+.bar--hot {
+  background: var(--hot-er);
+}
+
+@media (min-width: 768px) {
+  .chart--poll .bar-row {
+    grid-template-columns: 96px 1fr 280px;
+  }
+}
+
+.naming-close {
+  margin-top: clamp(40px, 7vw, 96px);
+  font-size: clamp(1.75rem, 0.95rem + 3.8vw, 5rem);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+}
+
+.sec .naming-close + .footnote {
+  margin-top: 16px;
+}
+
+/* ---------- SEC.05 renaming office ---------- */
+
+.office-sub {
+  margin-top: 8px;
+  font-size: clamp(1.25rem, 1rem + 1.4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.office {
+  margin-top: clamp(24px, 4vw, 48px);
+  max-width: 760px;
+}
+
+.office-label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--mute);
+}
+
+.office-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.office-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.office-input::placeholder {
+  color: var(--mute);
+  opacity: 1;
+}
+
+.office-card {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  margin-top: 24px;
+  border: var(--rule);
+}
+
+.office-card[hidden] {
+  display: none;
+}
+
+.office-nojs {
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--mute);
+}
+
+.office-denied {
+  margin-top: 24px;
+  padding: 14px;
+  border: var(--rule);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.office-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.office-actions[hidden],
+.office-form[hidden],
+.office-nojs[hidden],
+.office-denied[hidden] {
+  display: none;
+}
+
+.office-share-status {
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
+
 /* ---------- Toast ---------- */
 
 .toast {
