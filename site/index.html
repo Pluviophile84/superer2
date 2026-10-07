@@ -30,6 +30,13 @@
 <link rel="preload" href="./assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="./src/styles.css">
 <script type="module" src="./src/main.js"></script>
+<link rel="modulepreload" href="./src/config.js">
+<link rel="modulepreload" href="./src/header.js">
+<link rel="modulepreload" href="./src/console.js">
+<link rel="modulepreload" href="./src/copy.js">
+<link rel="modulepreload" href="./src/overload.js">
+<link rel="modulepreload" href="./src/svg.js">
+<link rel="modulepreload" href="./src/glyphs.js">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -70,8 +77,8 @@
   <span class="sec-coord" aria-hidden="true">ER.01</span>
   <div class="wrap">
     <p class="sec-label" aria-hidden="true">SEC.01 / ANNOUNCEMENT</p>
-    <p class="eyebrow">RELEASE NOTE · CANONICAL BUILD</p>
-    <h1 id="h-announcement" class="display">INTRODUCING SUPERER.</h1>
+    <p class="eyebrow"><!-- SITE:bridge -->AI → SI → SUPERER<!-- /SITE:bridge --><!-- SITE:nobridge -->RELEASE NOTE · CANONICAL BUILD<!-- /SITE:nobridge --></p>
+    <h1 id="h-announcement" class="display hero-title"><span class="hero-intro">INTRODUCING.</span>
     <svg data-master class="wordmark wordmark--hero" viewBox="0 0 1044 230" width="1044" height="230" role="img" aria-label="SUPERER">
 <path d="M1104 1446V1130Q994 1185 888.5 1213.0Q783 1241 689 1241Q565 1241 505.5 1203.0Q446 1165 446 1085Q446 1025 486.0 991.5Q526 958 632 934L779 901Q1004 851 1098.0 749.0Q1192 647 1192 459Q1192 212 1060.5 91.5Q929 -29 658 -29Q530 -29 401.5 -2.0Q273 25 144 78V403Q273 327 393.0 288.5Q513 250 625 250Q738 250 798.5 292.0Q859 334 859 412Q859 482 818.0 520.0Q777 558 654 588L520 621Q319 669 225.5 774.0Q132 879 132 1057Q132 1280 262.0 1400.0Q392 1520 634 1520Q745 1520 862.0 1501.5Q979 1483 1104 1446Z" fill="#050505" transform="translate(24.000,190.000) scale(0.107021,-0.107021)"/>
 <path d="M169 1493H516V598Q516 413 570.5 333.5Q625 254 748 254Q872 254 926.5 333.5Q981 413 981 598V1493H1328V598Q1328 281 1184.5 126.0Q1041 -29 748 -29Q455 -29 312.0 126.0Q169 281 169 598Z" fill="#050505" transform="translate(163.016,190.000) scale(0.107021,-0.107021)"/>
@@ -80,9 +87,10 @@
 <path d="M662 831Q770 831 817.5 876.0Q865 921 865 1024Q865 1126 817.5 1170.0Q770 1214 662 1214H516V831ZM516 565V0H169V1493H698Q964 1493 1087.5 1394.0Q1211 1295 1211 1081Q1211 933 1147.0 838.0Q1083 743 953 698Q1024 680 1080.5 616.5Q1137 553 1194 424L1382 0H1013L850 371Q800 483 749.0 524.0Q698 565 614 565Z" fill="#050505" transform="translate(593.336,190.000) scale(0.107021,-0.107021)"/>
 <path d="M169 1493H1104V1202H516V924H1069V633H516V291H1124V0H169Z" fill="#FF3B4D" transform="translate(740.198,190.000) scale(0.107021,-0.107021)"/>
 <path d="M662 831Q770 831 817.5 876.0Q865 921 865 1024Q865 1126 817.5 1170.0Q770 1214 662 1214H516V831ZM516 565V0H169V1493H698Q964 1493 1087.5 1394.0Q1211 1295 1211 1081Q1211 933 1147.0 838.0Q1083 743 953 698Q1024 680 1080.5 616.5Q1137 553 1194 424L1382 0H1013L850 371Q800 483 749.0 524.0Q698 565 614 565Z" fill="#FF3B4D" transform="translate(871.937,190.000) scale(0.107021,-0.107021)"/>
-    </svg>
+    </svg></h1>
     <p class="subhead">SUPER WASN'T ENOUGH.</p>
-    <p class="support">Same intelligence. More ER. Our most ER release to date.</p>
+    <p class="subnote">SUPER ALREADY HAD ONE ER. IT WAS NOT ENOUGH.</p>
+    <p class="support"><!-- SITE:bridge -->AI WAS RENAMED SI. SI WAS NOT ENOUGH.<!-- /SITE:bridge --><!-- SITE:nobridge -->SAME INTELLIGENCE. MORE ER.<!-- /SITE:nobridge --></p>
   </div>
 
   <div class="wrap">
@@ -114,10 +122,72 @@
   </div>
 </section>
 
-<section class="sec sec--bench" id="benchmarks" aria-labelledby="h-benchmarks" data-upgrade-section>
+<!-- SITE:bridge -->
+<section class="sec" id="naming-history" aria-labelledby="h-naming-history" data-upgrade-section>
   <span class="sec-coord" aria-hidden="true">ER.02</span>
   <div class="wrap">
-    <p class="sec-label" aria-hidden="true">SEC.02 / BENCHMARKS</p>
+    <p class="sec-label" aria-hidden="true">SEC.02 / NAMING HISTORY</p>
+    <h2 id="h-naming-history" class="display-2">THE NAME IS THE UPGRADE.</h2>
+    <ol class="timeline">
+      <li class="tl-row">
+        <span class="tl-year">1956</span>
+        <span class="tl-name">ARTIFICIAL INTELLIGENCE</span>
+        <span class="tl-note">Named. Considered final.</span>
+      </li>
+      <li class="tl-row">
+        <span class="tl-year">2026</span>
+        <span class="tl-name">SUPER INTELLIGENCE</span>
+        <span class="tl-note">Renamed by executive order. "Artificial" sounded fake.</span>
+      </li>
+      <li class="tl-row">
+        <span class="tl-year">2026, LATER</span>
+        <span class="tl-name">SUPER<span class="er">ER</span></span>
+        <span class="tl-note">Renamed again. "Super" sounded unfinished.</span>
+      </li>
+    </ol>
+
+    <figure class="chart chart--poll">
+      <figcaption class="chart-title">THE OFFICIAL NAMING POLL</figcaption>
+      <div class="chart-body" aria-hidden="true">
+        <div class="bar-row">
+          <span class="bar-name">SUPER</span>
+          <span class="bar-value">65%</span>
+          <span class="track"><span class="bar bar--ink bar--65"></span></span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-name">SUPERIOR</span>
+          <span class="bar-value">35%</span>
+          <span class="track"><span class="bar bar--ink bar--35"></span></span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-name">SUPERER</span>
+          <span class="bar-value">NOT ON THE BALLOT. ADDED ANYWAY.</span>
+          <span class="track track--bare"><span class="bar bar--er"></span></span>
+        </div>
+      </div>
+      <table class="visually-hidden">
+        <caption>The official naming poll</caption>
+        <thead>
+          <tr><th scope="col">NAME</th><th scope="col">RESULT</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">SUPER</th><td>65%</td></tr>
+          <tr><th scope="row">SUPERIOR</th><td>35%</td></tr>
+          <tr><th scope="row">SUPERER</th><td>NOT ON THE BALLOT. ADDED ANYWAY.</td></tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p class="naming-close">INTELLIGENCE IMPROVED 0%.<br>THE NAME IMPROVED BY ONE ER.</p>
+    <p class="footnote">Our research team found the fastest way to make intelligence better: rename it. We renamed it harder.</p>
+  </div>
+</section>
+<!-- /SITE:bridge -->
+
+<section class="sec sec--bench" id="benchmarks" aria-labelledby="h-benchmarks" data-upgrade-section>
+  <span class="sec-coord" aria-hidden="true">ER.03</span>
+  <div class="wrap">
+    <p class="sec-label" aria-hidden="true">SEC.03 / BENCHMARKS</p>
     <h2 id="h-benchmarks" class="display-2">THE BENCHMARK ONLY WENT TO 100.</h2>
     <p class="accent-er">WE FIXED THAT.</p>
 
@@ -135,43 +205,70 @@
             <span class="bar-value">100</span>
             <span class="track"><span class="bar bar--ink"></span></span>
           </div>
+          <div class="chart-axis">
+            <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+          </div>
         </div>
         <div class="chart-group">
           <p class="chart-group-name">ER</p>
           <div class="bar-row">
             <span class="bar-name">SUPER</span>
-            <span class="bar-value">0</span>
-            <span class="track track--empty"></span>
+            <span class="bar-value">1</span>
+            <span class="track"><span class="bar bar--ink bar--half"></span></span>
           </div>
           <div class="bar-row">
             <span class="bar-name">SUPERER</span>
-            <span class="bar-value">1 (+∞% VS SUPER)</span>
+            <span class="bar-value">2 (+100% VS SUPER)</span>
             <span class="track"><span class="bar bar--er"></span></span>
           </div>
         </div>
-        <div class="chart-axis">
-          <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+        <!-- SITE:bridge -->
+        <div class="chart-group">
+          <p class="chart-group-name">NAME LENGTH</p>
+          <div class="bar-row">
+            <span class="bar-name">AI</span>
+            <span class="bar-value">2</span>
+            <span class="track"><span class="bar bar--ink bar--2of7"></span></span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-name">SI</span>
+            <span class="bar-value">2</span>
+            <span class="track"><span class="bar bar--ink bar--2of7"></span></span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-name">SUPERER</span>
+            <span class="bar-value">7 LETTERS (+250%)</span>
+            <span class="track"><span class="bar bar--hot"></span></span>
+          </div>
         </div>
+        <!-- /SITE:bridge -->
       </div>
       <table class="visually-hidden">
         <caption>Benchmark results</caption>
         <thead>
-          <tr><th scope="col">BENCHMARK</th><th scope="col">SUPER</th><th scope="col">SUPERER</th></tr>
+          <tr><th scope="col">BENCHMARK</th><th scope="col">VERSION</th><th scope="col">RESULT</th></tr>
         </thead>
         <tbody>
-          <tr><th scope="row">INTELLIGENCE</th><td>100</td><td>100</td></tr>
-          <tr><th scope="row">ER</th><td>0</td><td>1 (+∞% VS SUPER)</td></tr>
+          <tr><th scope="row">INTELLIGENCE</th><td>SUPER</td><td>100</td></tr>
+          <tr><th scope="row">INTELLIGENCE</th><td>SUPERER</td><td>100</td></tr>
+          <tr><th scope="row">ER</th><td>SUPER</td><td>1</td></tr>
+          <tr><th scope="row">ER</th><td>SUPERER</td><td>2 (+100% VS SUPER)</td></tr>
+          <!-- SITE:bridge -->
+          <tr><th scope="row">NAME LENGTH</th><td>AI</td><td>2</td></tr>
+          <tr><th scope="row">NAME LENGTH</th><td>SI</td><td>2</td></tr>
+          <tr><th scope="row">NAME LENGTH</th><td>SUPERER</td><td>7 LETTERS (+250%)</td></tr>
+          <!-- /SITE:bridge -->
         </tbody>
       </table>
-      <figcaption class="footnote">Intelligence held constant across all versions. ER measured in ER.</figcaption>
+      <figcaption class="footnote">Intelligence held constant across all versions. ER measured in ER.<!-- SITE:bridge --> Letters measured in letters.<!-- /SITE:bridge --></figcaption>
     </figure>
   </div>
 </section>
 
 <section class="sec sec--ink" id="console" aria-labelledby="h-console" data-upgrade-section>
-  <span class="sec-coord" aria-hidden="true">ER.03</span>
+  <span class="sec-coord" aria-hidden="true">ER.04</span>
   <div class="wrap">
-    <p class="sec-label" aria-hidden="true">SEC.03 / CONSOLE</p>
+    <p class="sec-label" aria-hidden="true">SEC.04 / CONSOLE</p>
     <h2 id="h-console" class="display-2">RUN THE UPGRADE.</h2>
 
     <div class="console" data-console>
@@ -185,7 +282,7 @@
 <g class="er-overload" data-stage-er aria-hidden="true"></g>
         </svg>
       </div>
-      <p class="readout" data-readout>VERSION: SUPER · ER: 0 · INTELLIGENCE: 100</p>
+      <p class="readout" data-readout>VERSION: SUPER · ER: 1 · INTELLIGENCE: 100</p>
       <div class="console-controls" data-console-controls hidden>
         <button type="button" class="btn btn--invert btn--lg btn--add" data-add-er>+ ER</button>
         <button type="button" class="btn btn--ghost-invert" data-reset>RESET</button>
@@ -199,18 +296,53 @@
   </div>
 </section>
 
-<section class="sec" id="model-card" aria-labelledby="h-model-card" data-upgrade-section>
-  <span class="sec-coord" aria-hidden="true">ER.04</span>
+<section class="sec" id="renaming-office" aria-labelledby="h-renaming-office" data-upgrade-section>
+  <span class="sec-coord" aria-hidden="true">ER.05</span>
   <div class="wrap">
-    <p class="sec-label" aria-hidden="true">SEC.04 / MODEL CARD</p>
+    <p class="sec-label" aria-hidden="true">SEC.05 / RENAMING OFFICE</p>
+    <h2 id="h-renaming-office" class="display-2">RENAME ANYTHING.</h2>
+    <p class="office-sub"><!-- SITE:bridge -->IT'S HOW UPGRADES WORK NOW.<!-- /SITE:bridge --><!-- SITE:nobridge -->ADD ER. IT IS ALWAYS AN UPGRADE.<!-- /SITE:nobridge --></p>
+
+    <div class="office" data-office>
+      <form class="office-form" data-office-form hidden>
+        <label class="office-label" for="office-name">NAME TO BE UPGRADED</label>
+        <div class="office-row">
+          <input class="office-input" id="office-name" name="name" type="text" placeholder="TYPE ANYTHING" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" data-office-input>
+          <button type="submit" class="btn btn--primary btn--lg" data-office-submit>FILE RENAMING</button>
+        </div>
+      </form>
+
+      <div class="office-result">
+        <img class="office-card" src="./assets/social/renaming-example.png" width="1200" height="1200" alt="Renaming notice: COFFEE shall be known as COFFEEER." loading="lazy" decoding="async" data-office-preview>
+        <p class="office-nojs" data-office-nojs>THE RENAMING OFFICE REQUIRES JAVASCRIPT. SO DOES PROGRESS.</p>
+        <p class="office-denied" data-office-denied hidden></p>
+        <div class="office-actions" data-office-actions hidden>
+          <button type="button" class="btn btn--secondary" data-office-upgrade>UPGRADE AGAIN</button>
+          <button type="button" class="btn btn--secondary" data-office-download>DOWNLOAD</button>
+          <button type="button" class="btn btn--secondary" data-office-share>SHARE</button>
+          <span class="office-share-status" data-office-share-status role="status"></span>
+        </div>
+      </div>
+      <p class="visually-hidden" data-office-status aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="model-card" aria-labelledby="h-model-card" data-upgrade-section>
+  <span class="sec-coord" aria-hidden="true">ER.06</span>
+  <div class="wrap">
+    <p class="sec-label" aria-hidden="true">SEC.06 / MODEL CARD</p>
     <h2 id="h-model-card" class="display-2">MODEL CARD.</h2>
     <dl class="spec spec--card">
       <div class="spec-row"><dt>MODEL NAME</dt><dd>SUPERER</dd></div>
       <div class="spec-row"><dt>TICKER</dt><dd>$SUPERER</dd></div>
       <div class="spec-row"><dt>BASE MODEL</dt><dd>SUPER</dd></div>
+      <div class="spec-row"><dt>PREVIOUS NAMES</dt><dd><!-- SITE:bridge -->ARTIFICIAL (DEPRECATED: SOUNDED FAKE) · <!-- /SITE:bridge -->SUPER (DEPRECATED: NOT ENOUGH)</dd></div>
       <div class="spec-row"><dt>TRAINING METHOD</dt><dd>ADD ER</dd></div>
+      <div class="spec-row"><dt>PARAMETERS</dt><dd>7 LETTERS</dd></div>
       <div class="spec-row"><dt>INTELLIGENCE</dt><dd>100</dd></div>
-      <div class="spec-row"><dt>ER</dt><dd>1 (CANONICAL)</dd></div>
+      <div class="spec-row"><dt>ER</dt><dd>2 (CANONICAL)</dd></div>
+      <div class="spec-row"><dt>ER DENSITY</dt><dd>57%</dd></div>
       <div class="spec-row"><dt>CONTEXT WINDOW</dt><dd>ONE WORD</dd></div>
       <div class="spec-row"><dt>INTENDED USE</dt><dd>BEING SUPERER</dd></div>
       <div class="spec-row"><dt>OUT-OF-SCOPE USE</dt><dd>BEING SUPER</dd></div>
@@ -220,22 +352,22 @@
 </section>
 
 <section class="sec" id="changelog" aria-labelledby="h-changelog" data-upgrade-section>
-  <span class="sec-coord" aria-hidden="true">ER.05</span>
+  <span class="sec-coord" aria-hidden="true">ER.07</span>
   <div class="wrap">
-    <p class="sec-label" aria-hidden="true">SEC.05 / CHANGELOG</p>
+    <p class="sec-label" aria-hidden="true">SEC.07 / CHANGELOG</p>
     <h2 id="h-changelog" class="display-2">CHANGELOG.</h2>
     <ol class="changelog">
       <li class="change">
         <span class="change-version">v1.0.0</span>
         <span class="change-name">SUPERER</span>
         <span class="change-status">CANONICAL</span>
-        <span class="change-note">Added ER.</span>
+        <span class="change-note">Added ER. Fixed: not enough.</span>
       </li>
       <li class="change change--old">
         <span class="change-version">v0.9.0</span>
         <span class="change-name">SUPER</span>
         <span class="change-status">DEPRECATED</span>
-        <span class="change-note">Not enough.</span>
+        <span class="change-note">Already had one ER. It was not enough.</span>
       </li>
     </ol>
     <div class="upcoming">
@@ -247,24 +379,25 @@
 </section>
 
 <section class="sec" id="limitations" aria-labelledby="h-limitations" data-upgrade-section>
-  <span class="sec-coord" aria-hidden="true">ER.06</span>
+  <span class="sec-coord" aria-hidden="true">ER.08</span>
   <div class="wrap">
-    <p class="sec-label" aria-hidden="true">SEC.06 / KNOWN LIMITATIONS</p>
+    <p class="sec-label" aria-hidden="true">SEC.08 / KNOWN LIMITATIONS</p>
     <h2 id="h-limitations" class="display-2">KNOWN LIMITATIONS.</h2>
     <ol class="limits">
       <li><span class="limit-id">L-01</span><span>SUPERER cannot be made less ER.</span></li>
-      <li><span class="limit-id">L-02</span><span>Removing ER is not supported.</span></li>
+      <li><span class="limit-id">L-02</span><span>Removing ER is not supported. Requests to remove ER will be answered with more ER.</span></li>
       <li><span class="limit-id">L-03</span><span>Intelligence remains at 100. This is by design.</span></li>
-      <li><span class="limit-id">L-04</span><span>SUPERER is a memecoin. It has no utility. There are no promises.</span></li>
-      <li><span class="limit-id">L-05</span><span>Do not buy what you cannot afford to lose. That rule did not need more ER.</span></li>
+      <li><span class="limit-id">L-04</span><span>Renaming does not improve intelligence. It does improve the name.</span></li>
+      <li><span class="limit-id">L-05</span><span>SUPERER is a memecoin. It has no utility. There are no promises.</span></li>
+      <li><span class="limit-id">L-06</span><span>Do not buy what you cannot afford to lose. That rule did not need more ER.</span></li>
     </ol>
   </div>
 </section>
 
 <section class="sec" id="faq" aria-labelledby="h-faq" data-upgrade-section>
-  <span class="sec-coord" aria-hidden="true">ER.07</span>
+  <span class="sec-coord" aria-hidden="true">ER.09</span>
   <div class="wrap">
-    <p class="sec-label" aria-hidden="true">SEC.07 / FAQ</p>
+    <p class="sec-label" aria-hidden="true">SEC.09 / FAQ</p>
     <h2 id="h-faq" class="display-2">FAQ.</h2>
     <div class="faq">
       <details>
@@ -275,6 +408,16 @@
         <summary>What does it do?</summary>
         <p>It has more ER.</p>
       </details>
+      <details>
+        <summary>SUPER already had an ER. Why add another?</summary>
+        <p>It was not enough.</p>
+      </details>
+      <!-- SITE:bridge -->
+      <details>
+        <summary>Who approved the name?</summary>
+        <p>We did. That appears to be how naming works now.</p>
+      </details>
+      <!-- /SITE:bridge -->
       <details>
         <summary>Is there a roadmap?</summary>
         <p>Yes. ER.</p>

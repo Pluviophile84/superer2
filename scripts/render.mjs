@@ -106,15 +106,34 @@ export function fragments(SITE, { base = null, ogImage = "./assets/social/og.png
 
 const MARKER = /<!-- SITE:([a-z-]+) -->([\s\S]*?)<!-- \/SITE:\1 -->/g;
 
-/** Replace marker contents; drops the bridge block entirely when disabled. */
+/**
+ * Replace marker contents. `bridge` blocks render only with the launch-meta
+ * bridge on, `nobridge` blocks only with it off; the markers stay in place.
+ */
 export function applyFragments(html, SITE, opts) {
   const frags = fragments(SITE, opts);
-  let out = html.replace(MARKER, (whole, name, inner) => {
-    if (name === "bridge") return SITE.showLaunchMetaBridge ? whole : "";
+  const bridge = Boolean(SITE.showLaunchMetaBridge);
+  let out = html.replace(MARKER, (whole, name) => {
+    if (name === "bridge") return bridge ? whole : "";
+    if (name === "nobridge") return bridge ? "" : whole;
     if (!(name in frags)) throw new Error(`Unknown SITE marker: ${name}`);
     return `<!-- SITE:${name} -->${frags[name]}<!-- /SITE:${name} -->`;
   });
+  if (!bridge) out = renumberSections(out);
   return out;
+}
+
+/** Number section labels (SEC.01…) and rail coordinates (ER.01…) in document order. */
+export function renumberSections(html) {
+  let sec = 0;
+  let er = 0;
+  return html
+    .replace(/(<p class="sec-label"[^>]*>)SEC\.(\d\d) \//g, (whole, open, num) =>
+      num === "00" ? whole : `${open}SEC.${String(++sec).padStart(2, "0")} /`,
+    )
+    .replace(/(<span class="sec-coord" aria-hidden="true">)ER\.\d\d</g, (whole, open) =>
+      `${open}ER.${String(++er).padStart(2, "0")}<`,
+    );
 }
 
 export function markerNames(html) {

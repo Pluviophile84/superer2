@@ -28,7 +28,7 @@ export function initHeader({ header, mark, group, sections, toast, reducedMotion
     const grow = extra > rendered && rendered !== -1;
     rendered = extra;
     syncGlyphs(group, overloadSpecs(overloadGlyphs(extra)), HOT_ER, grow && !reducedMotion.matches);
-    const name = versionName(1 + extra);
+    const name = versionName(2 + extra);
     mark.setAttribute("aria-label", name);
     document.title = name + TITLE_SUFFIX;
   }

@@ -1,12 +1,13 @@
 // Renders the social images and PNG favicons in headless Chromium so they use
 // the self-hosted fonts and the shared overload function exactly as the site.
 // Output: site/assets/social/. Run with `npm run assets`; commit the results.
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { launchChromium } from "./browser.mjs";
 import { overloadGlyphs, glyphTransform } from "../site/src/overload.js";
 import { PATHS, INK, HOT_ER, WHITE, MASTER_LAYOUT, masterTransform } from "../site/src/glyphs.js";
+import { SITE, isPlaceholder } from "../site/src/config.js";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const site = join(root, "site");
@@ -14,10 +15,16 @@ const out = join(site, "assets", "social");
 const ORIGIN = "http://assets.local";
 
 const stripMetadata = (s) => s.replace(/<metadata>[\s\S]*?<\/metadata>/, "");
-const darkIcon = stripMetadata(readFileSync(join(root, "brand-originals", "SUPERER_icon_dark.svg"), "utf8"));
+const qa = join(root, "qa-output");
+mkdirSync(qa, { recursive: true });
 
-// favicon.svg is the dark stacked icon with only <metadata> removed.
-writeFileSync(join(out, "favicon.svg"), darkIcon);
+// The single red ER on ink is the primary icon. The stacked ER icons stay in
+// assets/brand as a secondary mark for large formats.
+const ICON = "SUPERER_icon_single_dark.svg";
+const icon = stripMetadata(readFileSync(join(root, "brand-originals", ICON), "utf8"));
+
+// favicon.svg is the single-ER dark icon with only <metadata> removed.
+writeFileSync(join(out, "favicon.svg"), icon);
 
 /** Master wordmark + overload as SVG path markup, in master units. */
 function wordmarkMarkup({ superFill, extraERs, showER = true }) {
@@ -76,29 +83,19 @@ function bannerTemplate() {
   );
 }
 
-// Stacked ER icon at any size.
+// Single-ER icon at any size.
 const iconTemplate = (size) =>
-  page(size, size, INK, `<img src="/assets/brand/SUPERER_icon_dark.svg" width="${size}" height="${size}" alt="">`, "img { display: block; }");
+  page(size, size, INK, `<img src="/assets/brand/${ICON}" width="${size}" height="${size}" alt="">`, "img { display: block; }");
 
-// Single Hot ER "ER" on ink, for 16/32px favicons where two rows are illegible.
-function faviconTemplate(size) {
-  // E then R, advanced by the master spacing (871.937 - 740.198) / 0.107021.
-  const advance = (871.937 - 740.198) / 0.107021;
-  const minX = 169, maxX = advance + 1382, w = maxX - minX, h = 1493;
-  const side = w * 1.12;
-  const ox = (side - w) / 2 - minX;
-  const oy = (side - h) / 2 + h;
-  return page(
+// Circular-crop preview (X and most token lists crop avatars to circles).
+const circleTemplate = (size) =>
+  page(
     size,
     size,
-    INK,
-    `<svg width="${size}" height="${size}" viewBox="0 0 ${side.toFixed(1)} ${side.toFixed(1)}">
-      <g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)}) scale(1 -1)">
-        <path d="${PATHS.E}" fill="${HOT_ER}"/>
-        <path d="${PATHS.R}" fill="${HOT_ER}" transform="translate(${advance.toFixed(1)} 0)"/>
-      </g></svg>`,
+    "#E8E8E8",
+    `<img src="/assets/brand/${ICON}" width="${size}" height="${size}" alt="">`,
+    "img { display: block; border-radius: 50%; }",
   );
-}
 
 const JOBS = [
   ["og.png", 1200, 630, ogTemplate()],
@@ -106,8 +103,9 @@ const JOBS = [
   ["avatar.png", 400, 400, iconTemplate(400)],
   ["token.png", 1000, 1000, iconTemplate(1000)],
   ["apple-touch-icon.png", 180, 180, iconTemplate(180)],
-  ["favicon-32.png", 32, 32, faviconTemplate(32)],
-  ["favicon-16.png", 16, 16, faviconTemplate(16)],
+  ["favicon-32.png", 32, 32, iconTemplate(32)],
+  ["favicon-16.png", 16, 16, iconTemplate(16)],
+  ["../../../qa-output/avatar-circle-preview.png", 400, 400, circleTemplate(400)],
 ];
 
 const TYPES = { ".svg": "image/svg+xml", ".woff2": "font/woff2" };
@@ -128,4 +126,52 @@ for (const [name, width, height, html] of JOBS) {
   await p.close();
   console.log(`assets: ${name} (${width}x${height})`);
 }
+// Renaming Office cards, drawn by the same card.js the site uses.
+const host = isPlaceholder(SITE.siteUrl) ? "" : new URL(SITE.siteUrl).host;
+const CARD_PAGE = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="/src/styles.css">
+<script type="module">
+import { drawCard, loadCardFonts } from "/src/card.js";
+import { renameRequest } from "/src/rename.js";
+window.renderCard = async (input, upgrades, notice, filed, host) => {
+  await loadCardFonts();
+  const r = renameRequest(input, upgrades);
+  const canvas = document.createElement("canvas");
+  const t0 = performance.now();
+  drawCard(canvas, { ...r, notice, filed, host });
+  const ms = performance.now() - t0;
+  return { data: canvas.toDataURL("image/png"), ms };
+};
+window.cardReady = true;
+</script></head><body></body></html>`;
+const CARDS = [
+  // [file, input, upgrades, notice] — the first one is the committed no-JS example.
+  [join(out, "renaming-example.png"), "COFFEE", 0, "00001"],
+  [join(qa, "card-coffee.png"), "COFFEE", 0, "40417"],
+  [join(qa, "card-monday-3-upgrades.png"), "MONDAY", 3, "28153"],
+  [join(qa, "card-si.png"), "SI", 0, "73906"],
+];
+{
+  const p = await browser.newPage({ viewport: { width: 800, height: 600 } });
+  await p.route(`${ORIGIN}/**`, (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === "/card.html") return route.fulfill({ contentType: "text/html", body: CARD_PAGE });
+    const file = join(site, path);
+    if (!file.startsWith(site) || !existsSync(file)) return route.fulfill({ status: 404, body: "" });
+    const type = { ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2" }[extname(file)];
+    return route.fulfill({ contentType: type || "application/octet-stream", body: readFileSync(file) });
+  });
+  await p.goto(`${ORIGIN}/card.html`, { waitUntil: "networkidle" });
+  await p.waitForFunction(() => window.cardReady === true);
+  for (const [file, input, upgrades, notice] of CARDS) {
+    const { data, ms } = await p.evaluate(
+      ([i, u, n, h]) => window.renderCard(i, u, n, "07 OCT 2026", h),
+      [input, upgrades, notice, host],
+    );
+    writeFileSync(file, Buffer.from(data.split(",")[1], "base64"));
+    console.log(`assets: ${file.replace(root, "")} (${input}, +${upgrades}) drawn in ${ms.toFixed(1)}ms`);
+  }
+  await p.close();
+}
+
 await browser.close();
