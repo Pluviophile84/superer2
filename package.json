@@ -11,7 +11,7 @@
     "test": "node --test",
     "build": "node --test && node scripts/build.mjs",
     "assets": "node scripts/build-assets.mjs",
-    "check": "node scripts/check-layout.mjs && node scripts/check-touch.mjs && node scripts/check-flicker.mjs",
+    "check": "node scripts/check-layout.mjs && node scripts/check-console.mjs && node scripts/check-flicker.mjs",
     "validate": "html-validate dist/index.html",
     "serve": "node scripts/serve.mjs"
   },
