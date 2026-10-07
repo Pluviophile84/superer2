@@ -3,6 +3,7 @@ import { SITE, isPlaceholder } from "./config.js";
 import { initHeader } from "./header.js";
 import { initConsole } from "./console.js";
 import { initCopyButtons } from "./copy.js";
+import { initOffice } from "./office.js";
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const $ = (sel) => document.querySelector(sel);
@@ -25,6 +26,11 @@ initConsole({
   root: $("[data-console]"),
   siteUrl: isPlaceholder(SITE.siteUrl) ? "" : String(SITE.siteUrl).trim(),
   reducedMotion,
+});
+
+initOffice({
+  root: $("[data-office]"),
+  siteUrl: isPlaceholder(SITE.siteUrl) ? "" : String(SITE.siteUrl).trim(),
 });
 
 // Benchmark bars grow once on first view; reduced motion shows them at once.
