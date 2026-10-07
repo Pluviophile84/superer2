@@ -34,14 +34,20 @@ const glyphPath = (g) => {
   return paths[g];
 };
 
-/** Make sure the first card never renders in a fallback font. */
+/** Make sure the first card never renders in a fallback font. Loaded once. */
+let fontsReady = null;
 export function loadCardFonts() {
-  if (!document.fonts || !document.fonts.load) return Promise.resolve();
-  return Promise.all([
-    document.fonts.load(`700 100px ${SANS}`),
-    document.fonts.load(`400 24px ${MONO}`),
-    document.fonts.load(`600 24px ${MONO}`),
-  ]).catch(() => {});
+  if (!fontsReady) {
+    fontsReady =
+      document.fonts && document.fonts.load
+        ? Promise.all([
+            document.fonts.load(`700 100px ${SANS}`),
+            document.fonts.load(`400 24px ${MONO}`),
+            document.fonts.load(`600 24px ${MONO}`),
+          ]).catch(() => {})
+        : Promise.resolve();
+  }
+  return fontsReady;
 }
 
 function brandGlyph(ctx, glyph, x, y, rotation, scale, fill) {
