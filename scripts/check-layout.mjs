@@ -44,6 +44,38 @@ const rectsOverlap = (a, b) =>
   a && b && a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 const versionName = (count) => "SUP" + "ER".repeat(count);
 
+/**
+ * Terminal invariants: fixed height of 9 lines (< 768px) or 12 lines, not a
+ * scroll container, no wrapped line, no line cut off at the top.
+ */
+async function terminalProblems(page, width) {
+  const t = await page.locator("[data-terminal]").evaluate((el) => {
+    const cs = getComputedStyle(el);
+    const lh = parseFloat(cs.lineHeight);
+    const top = el.getBoundingClientRect().top + parseFloat(cs.paddingTop);
+    const lines = [...el.querySelectorAll(".term-line, .term-prompt")];
+    return {
+      lh,
+      height: el.getBoundingClientRect().height,
+      padY: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
+      overflowY: cs.overflowY,
+      overscroll: cs.overscrollBehaviorY,
+      wrapped: lines.filter((l) => l.getBoundingClientRect().height > lh * 1.2).map((l) => l.textContent),
+      cutOff: [...el.children].filter((c) => c.getBoundingClientRect().top < top - 0.5).map((c) => c.textContent),
+    };
+  });
+  const problems = [];
+  const expectedLines = width >= 768 ? 12 : 9;
+  if (Math.abs(t.height - (expectedLines * t.lh + t.padY)) > 1) {
+    problems.push(`terminal is ${t.height.toFixed(1)}px, expected ${expectedLines} lines (${(expectedLines * t.lh + t.padY).toFixed(1)}px)`);
+  }
+  if (t.overflowY !== "hidden") problems.push(`terminal overflow-y is ${t.overflowY}`);
+  if (t.overscroll !== "auto") problems.push(`terminal overscroll-behavior is ${t.overscroll}`);
+  if (t.wrapped.length) problems.push(`wrapped terminal lines: ${t.wrapped.join(" | ")}`);
+  if (t.cutOff.length) problems.push(`terminal lines cut off at the top: ${t.cutOff.join(" | ")}`);
+  return problems;
+}
+
 for (const variant of VARIANTS) {
   const server = await startServer({ dir: variant.dir });
   const url = `http://127.0.0.1:${server.address().port}/`;
@@ -103,8 +135,7 @@ for (const variant of VARIANTS) {
     if (!(await noHScroll(page))) fail("horizontal scroll after 12 x + ER");
     const readout = await page.locator("[data-readout]").textContent();
     if (!readout.includes("SUP(ER)×14") || !readout.includes("ER: 14")) fail(`readout after 12: ${readout}`);
-    const lines = await page.locator("[data-terminal] .term-line").count();
-    if (lines > 60) fail(`terminal keeps ${lines} lines`);
+    for (const problem of await terminalProblems(page, vp.width)) fail(problem);
 
     // Renaming office: COFFEE, then UPGRADE AGAIN x 12.
     // The office module loads lazily as its section approaches the viewport.

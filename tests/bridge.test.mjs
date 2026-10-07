@@ -55,7 +55,7 @@ test("bridge off: no SI / naming-history references remain", () => {
 
 test("bridge on: bridge-only copy present, bridge-off copy absent", () => {
   const text = visibleText(build(true));
-  assert.match(text, /AI WAS RENAMED SI\. SI WAS NOT ENOUGH\./);
+  assert.match(text, /AI WAS RENAMED SI\. WE RENAMED IT AGAIN\./);
   assert.match(text, /IT'S HOW UPGRADES WORK NOW\./);
   assert.match(text, /ARTIFICIAL \(DEPRECATED: SOUNDED FAKE\) · SUPER \(DEPRECATED: NOT ENOUGH\)/);
   assert.doesNotMatch(text, /SAME INTELLIGENCE\. MORE ER\./);
@@ -84,4 +84,19 @@ test("the SEC.00 bridge strip is gone; the AI → SI line appears once, as the h
   const off = visibleText(build(false));
   assert.doesNotMatch(off, /AI → SI/);
   assert.match(off, /RELEASE NOTE · CANONICAL BUILD/);
+});
+
+test("hero says WASN'T ENOUGH / NOT ENOUGH exactly once, in both bridge modes", () => {
+  for (const bridge of [true, false]) {
+    const html = build(bridge);
+    const hero = visibleText(html.match(/<section class="sec sec--hero"[\s\S]*?<\/section>/)[0]);
+    assert.equal(hero.match(/WASN'T ENOUGH|NOT ENOUGH/gi)?.length, 1, `bridge ${bridge}`);
+    assert.match(hero, /SUPER WASN'T ENOUGH\./);
+    assert.doesNotMatch(hero, /SUPER ALREADY HAD ONE ER/);
+  }
+  assert.match(visibleText(build(true)), /AI WAS RENAMED SI\. WE RENAMED IT AGAIN\./);
+});
+
+test("FAQ: SUPER already had an ER. Why add another? For redundancy.", () => {
+  assert.match(source, /<summary>SUPER already had an ER\. Why add another\?<\/summary>\s*<p>For redundancy\.<\/p>/);
 });

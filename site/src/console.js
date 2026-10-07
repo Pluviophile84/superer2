@@ -4,50 +4,52 @@ import { overloadSpecs, syncGlyphs } from "./svg.js";
 import { HOT_ER, MASTER_LAYOUT, masterTransform } from "./glyphs.js";
 import { copyText } from "./copy.js";
 
-// Desktop keeps a scrollable history; touch/narrow screens keep only the
-// last few lines because the terminal grows instead of scrolling there.
-const MAX_LINES_DESKTOP = 60;
-const MAX_LINES_TOUCH = 8;
-const DESKTOP_TERMINAL = "(min-width: 768px) and (pointer: fine)";
 // Glyphs past this many extra ERs are far outside the clipped stage.
 const MAX_RENDERED_EXTRA = 30;
 // Above this ER count the readout uses the short form.
 const SHORT_FORM_ABOVE = 9;
-const DOTS = (label) => `  ${label} ${".".repeat(Math.max(3, 38 - label.length))} `;
+
+// Terminal lines are data: a command, a "key ..... value" row (the dotted
+// leader is drawn by CSS and stretches with the terminal), or plain text.
+const cmd = (text) => ({ kind: "cmd", text });
+const kv = (key, value) => ({ kind: "kv", key, value: String(value) });
+const text = (t) => ({ kind: "text", text: t });
+
+/** Plain-text form of a line, e.g. for announcements and tests. */
+export const lineText = (line) =>
+  line.kind === "kv" ? `${line.key} ${line.value}` : line.text;
 
 // One entry per press. `add` is how many ERs that press adds; every ER in
 // the word counts, so SUPER starts at 1 and the canonical SUPERER is 2.
+// The last line of each block is the one announced to screen readers.
 export const SCRIPT = [
   {
     add: 1,
     lines: (n) => [
-      "> upgrade --target superer",
-      DOTS("allocating ER") + "done",
-      DOTS("intelligence") + "unchanged (100)",
-      DOTS("ER") + n,
-      "  status: CANONICAL. there is only one SUPERER.",
+      cmd("> upgrade --target superer"),
+      kv("allocating ER", "done"),
+      kv("intelligence", "unchanged (100)"),
+      kv("ER", n),
+      text("status: CANONICAL. there is only one SUPERER."),
+      text("scientists warned us not to add another ER."),
     ],
   },
   {
-    add: 1,
-    lines: (n) => ["> upgrade --target supererer", DOTS("ER") + n, "  note: everything after SUPERER is an upgrade."],
-  },
-  {
-    add: 1,
-    lines: (n) => ["> upgrade --target superererer", DOTS("ER") + n, "  scientists warned us not to add another ER."],
-  },
-  {
     add: 2,
-    lines: (n) => ["> upgrade --ignore-warnings", DOTS("ER") + n + "  (+2)", "  we added two."],
+    lines: (n) => [cmd("> upgrade --ignore-warnings"), kv("ER", `${n}  (+2)`), text("we added two.")],
   },
   {
     add: 1,
-    lines: (n) => ["> upgrade", DOTS("ER") + n, "  warning: ER exceeds container. this is a feature."],
+    lines: (n) => [cmd("> upgrade"), kv("ER", n), text("note: everything after SUPERER is an upgrade.")],
+  },
+  {
+    add: 1,
+    lines: (n) => [cmd("> upgrade"), kv("ER", n), text("warning: ER exceeds container. this is a feature.")],
   },
 ];
 const FINAL = {
   add: 1,
-  lines: (n) => ["> upgrade", DOTS("ER") + n, DOTS("intelligence") + "unchanged (100)"],
+  lines: (n) => [cmd("> upgrade"), kv("ER", n), kv("intelligence", "unchanged (100)")],
 };
 
 export const START_COUNT = 1;
@@ -87,11 +89,32 @@ const CANONICAL_ER = MASTER_LAYOUT.filter((g) => g.er).map((g) => ({
   transform: masterTransform(g.x),
 }));
 
+function lineElement(line) {
+  const p = document.createElement("p");
+  p.className = `term-line term-${line.kind}`;
+  if (line.kind === "kv") {
+    const key = document.createElement("span");
+    key.className = "term-key";
+    key.textContent = line.key;
+    const dots = document.createElement("span");
+    dots.className = "term-dots";
+    dots.setAttribute("aria-hidden", "true");
+    const value = document.createElement("span");
+    value.className = "term-val";
+    value.textContent = line.value;
+    p.append(key, dots, value);
+  } else {
+    p.textContent = line.text;
+  }
+  return p;
+}
+
 export function initConsole({ root, siteUrl, reducedMotion }) {
   const stage = root.querySelector("[data-stage]");
   const group = root.querySelector("[data-stage-er]");
   const readout = root.querySelector("[data-readout]");
   const terminal = root.querySelector("[data-terminal]");
+  const announce = root.querySelector("[data-console-status]");
   const controls = root.querySelector("[data-console-controls]");
   const addBtn = root.querySelector("[data-add-er]");
   const resetBtn = root.querySelector("[data-reset]");
@@ -100,26 +123,23 @@ export function initConsole({ root, siteUrl, reducedMotion }) {
   const prompt = terminal.querySelector(".term-prompt");
 
   const state = createConsoleState();
-  const desktop = window.matchMedia(DESKTOP_TERMINAL);
   let shareTimer = 0;
 
-  // Remove the oldest output lines beyond the limit, then any spacer left
-  // dangling at the top. Older lines are removed, not scrolled.
-  function trim() {
-    const max = desktop.matches ? MAX_LINES_DESKTOP : MAX_LINES_TOUCH;
-    const output = terminal.querySelectorAll(".term-line:not(.term-gap)");
-    for (let i = 0; i < output.length - max; i++) {
-      const line = output[i];
-      while (line.previousElementSibling && line.previousElementSibling.classList.contains("term-gap")) {
-        line.previousElementSibling.remove();
-      }
-      line.remove();
+  // Keep only the lines that fit: remove whole lines from the top (oldest
+  // first) so no line is ever shown cut off. Nothing scrolls.
+  function fit() {
+    const cs = getComputedStyle(terminal);
+    const available = terminal.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const height = () => [...terminal.children].reduce((sum, el) => sum + el.getBoundingClientRect().height, 0);
+    while (terminal.firstElementChild !== prompt && height() > available + 0.5) {
+      terminal.firstElementChild.remove();
     }
-    const first = terminal.firstElementChild;
-    if (first && first.classList.contains("term-gap")) first.remove();
-    if (desktop.matches) terminal.scrollTop = terminal.scrollHeight;
+    while (terminal.firstElementChild && terminal.firstElementChild.classList.contains("term-gap")) {
+      terminal.firstElementChild.remove();
+    }
   }
-  desktop.addEventListener("change", trim);
+  // Re-fit when the terminal's size changes (breakpoints, font size).
+  if ("ResizeObserver" in window) new ResizeObserver(fit).observe(terminal);
 
   function renderStage(animate) {
     const n = state.count;
@@ -134,46 +154,43 @@ export function initConsole({ root, siteUrl, reducedMotion }) {
     const frag = document.createDocumentFragment();
     if (terminal.querySelector(".term-line")) {
       const gap = document.createElement("p");
-      gap.className = "term-line term-gap";
+      gap.className = "term-gap";
       gap.setAttribute("aria-hidden", "true");
       frag.appendChild(gap);
     }
-    lines.forEach((text, i) => {
-      const p = document.createElement("p");
-      p.className = i === 0 ? "term-line term-cmd" : "term-line";
-      p.textContent = text;
-      frag.appendChild(p);
-    });
+    for (const line of lines) frag.appendChild(lineElement(line));
     terminal.insertBefore(frag, prompt);
-    trim();
+    fit();
   }
 
   addBtn.addEventListener("click", () => {
-    const { lines } = state.press();
+    const { count, lines } = state.press();
     renderStage(true);
     print(lines);
+    // Announce one summary, not every added or removed terminal line.
+    announce.textContent = `${readoutText(count)}. ${lineText(lines[lines.length - 1])}`;
   });
 
   resetBtn.addEventListener("click", () => {
     state.reset();
     renderStage(false);
-    terminal.querySelectorAll(".term-line").forEach((el) => el.remove());
-    terminal.scrollTop = 0;
+    terminal.querySelectorAll(".term-line, .term-gap").forEach((el) => el.remove());
+    announce.textContent = readoutText(state.count);
     shareStatus.textContent = "";
   });
 
   shareBtn.addEventListener("click", async () => {
     const url = siteUrl || location.href.split("#")[0];
-    const text = `${consoleVersion(state.count)} — SUPER WASN'T ENOUGH. ADD ER. ${url}`;
+    const shareText = `${consoleVersion(state.count)} — SUPER WASN'T ENOUGH. ADD ER. ${url}`;
     if (navigator.share) {
       try {
-        await navigator.share({ text });
+        await navigator.share({ text: shareText });
         return;
       } catch (err) {
         if (err && err.name === "AbortError") return;
       }
     }
-    const ok = await copyText(text);
+    const ok = await copyText(shareText);
     shareStatus.textContent = ok ? "COPIED." : "";
     clearTimeout(shareTimer);
     shareTimer = setTimeout(() => (shareStatus.textContent = ""), 2000);
