@@ -3,7 +3,6 @@ import { SITE, isPlaceholder } from "./config.js";
 import { initHeader } from "./header.js";
 import { initConsole } from "./console.js";
 import { initCopyButtons } from "./copy.js";
-import { initOffice } from "./office.js";
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const $ = (sel) => document.querySelector(sel);
@@ -28,10 +27,29 @@ initConsole({
   reducedMotion,
 });
 
-initOffice({
-  root: $("[data-office]"),
-  siteUrl: isPlaceholder(SITE.siteUrl) ? "" : String(SITE.siteUrl).trim(),
-});
+// The Renaming Office (rules, blocklist, card renderer) is not needed for the
+// first paint: load it when the section approaches the viewport.
+const office = $("[data-office]");
+if (office) {
+  const loadOffice = () =>
+    import("./office.js").then(({ initOffice }) =>
+      initOffice({ root: office, siteUrl: isPlaceholder(SITE.siteUrl) ? "" : String(SITE.siteUrl).trim() }),
+    );
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          loadOffice();
+        }
+      },
+      { rootMargin: "800px 0px" },
+    );
+    io.observe(office);
+  } else {
+    loadOffice();
+  }
+}
 
 // Benchmark bars grow once on first view; reduced motion shows them at once.
 const chart = $("[data-chart]");

@@ -16,3 +16,20 @@ test("every inlined master wordmark in index.html carries the master paths uncha
   }
 });
 
+
+test("modulepreload lists exactly the statically imported module graph of main.js", () => {
+  const html = read("site/index.html");
+  const preloaded = [...html.matchAll(/<link rel="modulepreload" href="\.\/src\/([a-z/]+\.js)">/g)].map((m) => m[1]).sort();
+  const seen = new Set();
+  const walk = (file) => {
+    // Static imports only; dynamic import() is loaded lazily on purpose.
+    for (const m of read(`site/src/${file}`).matchAll(/^import [^;]*? from "\.\/([a-z/]+\.js)";/gm)) {
+      if (!seen.has(m[1])) {
+        seen.add(m[1]);
+        walk(m[1]);
+      }
+    }
+  };
+  walk("main.js");
+  assert.deepEqual(preloaded, [...seen].sort());
+});

@@ -19,9 +19,6 @@ const VIEWPORTS = [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1920]
   .map((width) => ({ width, height: 800 }))
   .concat([{ width: 844, height: 390, landscape: true }]);
 const SHOT_WIDTHS = new Set([375, 1440]);
-// Element screenshots taller than the viewport would otherwise capture the
-// off-screen skip link.
-const SHOT_STYLE = ".skip-link { visibility: hidden; }";
 
 // Variant B: the same site with the bridge flag flipped, built into a temp dir.
 const tmp = mkdtempSync(join(tmpdir(), "superer-check-"));
@@ -64,10 +61,16 @@ for (const variant of VARIANTS) {
     await page.goto(url, { waitUntil: "networkidle" });
     const shots = variant.shots && SHOT_WIDTHS.has(vp.width) && !vp.landscape;
     const tag = `${vp.width}`;
+    // Element screenshots taller than the viewport would also capture the
+    // off-screen skip link; hide it with the hidden attribute (no inline
+    // style, which the CSP would rightly block) and restore it after.
+    const skipLink = (hide) => page.evaluate((h) => (document.querySelector(".skip-link").hidden = h), hide);
     const shot = async (selector, name) => {
       await page.locator(selector).scrollIntoViewIfNeeded();
       await page.waitForTimeout(450);
-      await page.locator(selector).screenshot({ path: join(OUT, `${name}-${tag}.png`), style: SHOT_STYLE });
+      await skipLink(true);
+      await page.locator(selector).screenshot({ path: join(OUT, `${name}-${tag}.png`) });
+      await skipLink(false);
     };
 
     if (!(await noHScroll(page))) fail("horizontal scroll on load");
@@ -92,7 +95,9 @@ for (const variant of VARIANTS) {
     if (!after4.includes("ER: 6") || !after4.includes("VERSION: SUPERERERERERER ")) fail(`after 4 presses: ${after4}`);
     if (shots) {
       await page.waitForTimeout(300);
-      await page.locator("#console").screenshot({ path: join(OUT, `console-4-${tag}.png`), style: SHOT_STYLE });
+      await skipLink(true);
+      await page.locator("#console").screenshot({ path: join(OUT, `console-4-${tag}.png`) });
+      await skipLink(false);
     }
     for (let i = 4; i < 12; i++) await add.click();
     if (!(await noHScroll(page))) fail("horizontal scroll after 12 x + ER");
@@ -102,8 +107,10 @@ for (const variant of VARIANTS) {
     if (lines > 60) fail(`terminal keeps ${lines} lines`);
 
     // Renaming office: COFFEE, then UPGRADE AGAIN x 12.
+    // The office module loads lazily as its section approaches the viewport.
+    await page.locator("#renaming-office").scrollIntoViewIfNeeded();
+    await page.locator("[data-office-form]:not([hidden])").waitFor();
     const input = page.locator("[data-office-input]");
-    await input.scrollIntoViewIfNeeded();
     await input.fill("coffee");
     await page.keyboard.press("Enter");
     await page.locator("[data-office-preview]:not([hidden])").waitFor();
