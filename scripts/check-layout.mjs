@@ -113,8 +113,36 @@ for (const variant of VARIANTS) {
     const headerH = await page.evaluate(() => document.querySelector("[data-site-header]").getBoundingClientRect().height);
     if (vp.landscape && headerH > vp.height * 0.2) fail(`header is ${headerH}px of ${vp.height}px`);
 
+    // The setup headline always breaks as SUPER WASN'T / ENOUGH. (two lines).
+    const setupLines = await page.locator(".hero-setup-line").evaluate((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+    });
+    if (setupLines !== 2) fail(`setup headline renders on ${setupLines} lines, expected 2`);
+
+    // Each note line stays on one row (two rows per block) and never overflows.
+    {
+      const noteRows = await page.$$eval(".hero-note-body, .hero-note-mute", (els) =>
+        els.map((el) => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const rows = new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+          const note = el.closest(".hero-note").getBoundingClientRect();
+          const overflow = el.getBoundingClientRect().right > note.right + 0.5 || el.scrollWidth > el.clientWidth + 0.5;
+          return overflow ? -rows : rows;
+        }),
+      );
+      if (noteRows.some((n) => n !== 2)) fail(`hero note rows ${noteRows.join("/")}, expected 2/2 (negative = overflow)`);
+    }
+
+    // The browser's own accessible name for the h1 (role img SVG -> aria-label).
+    const h1Named = await page.getByRole("heading", { level: 1, name: "INTRODUCING. SUPERER", exact: true }).count();
+    if (h1Named !== 1) fail("h1 accessible name is not exactly \"INTRODUCING. SUPERER\"");
+
     if (shots) {
       await shot("#announcement", "hero");
+      await shot("#deployment", "deployment");
       if (hasNaming) await shot("#naming-history", "naming-history");
       await shot("#benchmarks", "benchmarks");
     }

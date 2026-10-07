@@ -42,6 +42,9 @@
   --hot-er: #FF3B4D;
   --gray: #E8E8E8;
   --mute: #6B6B6B;
+  /* On ink sections: mute text and hairlines. */
+  --ink-mute: #A3A3A3;
+  --ink-line: rgba(255, 255, 255, 0.18);
 
   --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -104,7 +107,8 @@ svg {
   outline-offset: 2px;
 }
 
-.sec--ink :focus-visible {
+.sec--ink :focus-visible,
+.site-footer :focus-visible {
   outline-color: var(--paper);
 }
 
@@ -168,6 +172,12 @@ main:focus {
 }
 
 .sec-label,
+.hero-eyebrow,
+.hero-note-label,
+.hero-meta,
+.hero-cell dt,
+.hero-foot,
+.hero-base,
 .footnote,
 .deploy-title,
 .chart-group-name,
@@ -192,18 +202,12 @@ main:focus {
   display: none;
 }
 
-.display,
 .display-2,
-.canon,
-.subhead {
+.canon {
   font-weight: 700;
   line-height: 0.98;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-}
-
-.display {
-  font-size: clamp(2rem, 1.1rem + 4.6vw, 7rem);
 }
 
 .display-2 {
@@ -326,16 +330,23 @@ main:focus {
   cursor: not-allowed;
 }
 
-.btn--invert {
-  background: var(--paper);
-  border-color: var(--paper);
-  color: var(--ink);
-}
-
-.btn--ghost-invert {
+/* Buttons on ink sections and the ink footer: primary is white with ink
+   text, everything else is transparent with a white 1px border. */
+:is(.sec--ink, .site-footer) .btn {
   background: transparent;
   border-color: var(--paper);
   color: var(--paper);
+}
+
+:is(.sec--ink, .site-footer) .btn--primary {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+:is(.sec--ink, .site-footer) .btn:disabled {
+  background: transparent;
+  border-color: var(--ink-line);
+  color: var(--ink-mute);
 }
 
 @media (hover: hover) {
@@ -348,13 +359,13 @@ main:focus {
     background: var(--ink);
     color: var(--paper);
   }
-  .btn--invert:not(:disabled):hover {
-    background: var(--ink);
-    color: var(--paper);
-  }
-  .btn--ghost-invert:not(:disabled):hover {
+  :is(.sec--ink, .site-footer) .btn:not(:disabled):hover {
     background: var(--paper);
     color: var(--ink);
+  }
+  :is(.sec--ink, .site-footer) .btn--primary:not(:disabled):hover {
+    background: transparent;
+    color: var(--paper);
   }
   .faq summary:hover {
     background: var(--gray);
@@ -367,43 +378,297 @@ main:focus {
   gap: 8px;
 }
 
-/* ---------- SEC.01 hero ---------- */
+/* ---------- SEC.01 hero: editorial grid ---------- */
 
 .sec--hero {
   border-top: 0;
-  padding-top: clamp(24px, 5vw, 64px);
+  padding-block: clamp(24px, 5vw, 64px) clamp(32px, 5vw, 64px);
 }
 
-/* Setup line, h1 (INTRODUCING. + wordmark) and support line read as one
-   composition: tight steps between them, one rhythm at every width. */
+.hero-row + .hero-row {
+  border-top: var(--rule);
+}
+
+/* Row 1: setup line (left) against the note (right), bottom-aligned. */
+.hero-setup {
+  display: grid;
+  gap: 24px;
+  padding-bottom: clamp(24px, 4vw, 48px);
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: clamp(16px, 3vw, 32px);
+}
+
+.hero-bullet {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--ink);
+}
+
+/* "SUPER WASN'T" is 6.82em wide, and the line always breaks as
+   SUPER WASN'T / ENOUGH. It is the setup, not the star: sized at 80% of what
+   would fill its space, so the SUPERER wordmark stays the dominant element.
+   Below 1024px: 80% of content width / 7. From 1024px (columns 1-9):
+   7.2vw, 45-110px. */
+.hero-setup-line {
+  font-size: calc((100vw - 2 * var(--gutter)) / 7 * 0.8);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+}
+
+.hero-note-label {
+  margin-bottom: 12px;
+  color: var(--mute);
+  /* Keep the lowercase "v" in v1.0.0. */
+  text-transform: none;
+}
+
+.hero-note-body,
+.hero-note-mute {
+  font-size: clamp(1rem, 0.9rem + 0.6vw, 1.25rem);
+  line-height: 1.35;
+}
+
+.hero-note-mute {
+  color: var(--mute);
+}
+
+/* Below 1024px the note sits under the headline: ink lines left, mute
+   lines right. Each line stays on one row; when both blocks don't fit side
+   by side, the mute block moves below instead of wrapping its lines. */
+.hero-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px clamp(16px, 4vw, 32px);
+}
+
+.hero-note-label {
+  flex: 0 0 100%;
+  margin-bottom: 4px;
+}
+
+.hero-note-body,
+.hero-note-mute {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+  .hero-note-body,
+  .hero-note-mute {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-setup {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    align-items: end;
+  }
+  @supports (align-items: last baseline) {
+    .hero-setup {
+      align-items: last baseline;
+    }
+  }
+  .hero-setup-line {
+    font-size: clamp(45px, 7.2vw, 110px);
+  }
+  .hero-setup-main {
+    grid-column: 1 / 10;
+  }
+  /* Desktop: the note is one column, bottom-aligned with the headline. */
+  .hero-note {
+    display: block;
+    grid-column: 10 / 13;
+  }
+  /* One row per line here too; the narrow column (10-12) sets the size. */
+  .hero-note-body,
+  .hero-note-mute {
+    font-size: min(1.25rem, 1.5vw);
+  }
+  .hero-note-mute {
+    margin-top: 8px;
+  }
+}
+
+/* Row 2: the reveal (h1 = INTRODUCING. + full-width wordmark). */
+.hero-reveal {
+  position: relative;
+  padding-block: clamp(16px, 2.5vw, 32px);
+}
+
+.hero-title {
+  margin: 0;
+}
+
+.hero-intro {
+  display: block;
+  margin-bottom: clamp(12px, 2vw, 24px);
+  font-size: clamp(28px, 3.2vw, 48px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* Tight viewBox: the glyphs meet the grid edges exactly. */
 .wordmark--hero {
   width: 100%;
+  max-width: 100%;
   height: auto;
-  aspect-ratio: 1044 / 230;
-  /* The SVG carries its own top/bottom whitespace (viewBox), so its margins
-     stay small to match the gap above INTRODUCING. */
-  margin-block: clamp(4px, 0.8vw, 12px) clamp(12px, 1.6vw, 20px);
+  aspect-ratio: 982 / 167;
 }
 
-.subhead {
-  font-size: clamp(1.75rem, 1rem + 3.6vw, 5rem);
+.hero-meta {
+  margin-top: 12px;
+  text-align: right;
 }
 
-.sec--hero .subhead {
-  margin-bottom: clamp(12px, 2vw, 28px);
+@media (min-width: 768px) {
+  /* Right end of the INTRODUCING. line, sharing its bottom edge. */
+  .hero-meta {
+    text-align: left;
+    position: absolute;
+    top: clamp(16px, 2.5vw, 32px);
+    right: 0;
+    display: flex;
+    align-items: flex-end;
+    height: clamp(28px, 3.2vw, 48px);
+    margin: 0;
+  }
 }
 
-.support {
-  font-size: clamp(1rem, 0.9rem + 0.5vw, 1.375rem);
-  max-width: 34ch;
+/* Row 3: data strip. Mobile: label/value rows; desktop: three cells. */
+.hero-data {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.hero-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 16px 16px 0;
+}
+
+.hero-cell:nth-child(2) {
+  padding-left: 16px;
+  border-left: var(--rule);
+}
+
+/* STATUS: full width, label left and word right. */
+.hero-cell:nth-child(3) {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "label value" "foot foot";
+  align-items: center;
+  gap: 8px 16px;
+  padding-right: 0;
+  border-top: var(--rule);
+}
+
+.hero-cell dt {
+  grid-area: label;
+  color: var(--mute);
+}
+
+.hero-value {
+  grid-area: value;
+  font-size: clamp(48px, 6vw, 96px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The ER count is literally ER, and at this size meets contrast. */
+.hero-value--er {
+  color: var(--hot-er);
+}
+
+.hero-value--word {
+  font-size: clamp(32px, 3.6vw, 56px);
+}
+
+.hero-foot {
+  grid-area: foot;
+  color: var(--mute);
+}
+
+@media (min-width: 768px) {
+  .hero-data {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .hero-cell,
+  .hero-cell:nth-child(3) {
+    grid-column: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 0;
+  }
+  .hero-cell:first-child {
+    padding-left: 0;
+  }
+  .hero-cell + .hero-cell {
+    border-left: var(--rule);
+  }
+}
+
+.hero-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 24px;
+  padding-top: 12px;
+  color: var(--mute);
 }
 
 /* Deployment panel */
 
 .deploy {
   container-type: inline-size;
-  margin-top: clamp(40px, 6vw, 80px);
   border: var(--rule);
+}
+
+.deploy .spec {
+  container-type: inline-size;
+}
+
+.sec--deploy {
+  padding-block: clamp(32px, 5vw, 64px);
+}
+
+@media (min-width: 768px) {
+  .sec--deploy .deploy {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+  .sec--deploy .deploy-title {
+    grid-column: 1 / -1;
+  }
+  .sec--deploy .spec-row:last-child {
+    border-bottom: 0;
+  }
+  .sec--deploy .deploy .actions {
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px;
+    border-left: 1px solid var(--ink-line);
+  }
 }
 
 .deploy-title {
@@ -632,33 +897,85 @@ main:focus {
   }
 }
 
-/* ---------- SEC.03 console (the only ink section) ---------- */
+/* ---------- Ink sections: full-bleed ink, white type ---------- */
 
-.sec--ink {
+.sec--ink,
+.site-footer {
   background: var(--ink);
   color: var(--paper);
   border-top-color: var(--ink);
 }
 
-.sec--ink .sec-label {
-  color: var(--gray);
-  border-bottom-color: var(--paper);
+:is(.sec--ink, .site-footer) .sec-label {
+  color: var(--ink-mute);
+  border-bottom-color: var(--ink-line);
 }
 
 .sec--ink .sec-coord {
-  color: var(--gray);
+  color: var(--ink-mute);
 }
+
+:is(.sec--ink, .site-footer) :is(.footnote, .chart-axis, .deploy-title, .spec dt, .ca--placeholder, .office-label, .office-nojs, .colophon) {
+  color: var(--ink-mute);
+}
+
+:is(.sec--ink, .site-footer) :is(.deploy, .deploy-title, .spec, .spec-row, .chart-body) {
+  border-color: var(--ink-line);
+}
+
+/* Benchmarks on ink: ink bars turn white, Hot ER bars stay Hot ER. */
+.sec--ink .bar--ink {
+  background: var(--paper);
+}
+
+.sec--ink .track {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sec--ink .chart-group + .chart-group {
+  border-top-color: var(--ink-line);
+}
+
+.sec--ink .bar-value {
+  background: var(--ink);
+}
+
+/* Renaming Office on ink. The card itself stays white. */
+.sec--ink .office-input {
+  background: transparent;
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
+.sec--ink .office-input::placeholder {
+  color: var(--ink-mute);
+}
+
+.sec--ink .office-card {
+  border-color: var(--paper);
+}
+
+.sec--ink .office-denied {
+  border-color: var(--paper);
+}
+
+/* The canonical rule as its own band. */
+.sec--canon .canon {
+  margin-top: 0;
+}
+
+/* ---------- SEC.04 console (paper; the terminal is an ink box) ---------- */
 
 .console {
   container-type: inline-size;
   margin-top: clamp(24px, 4vw, 48px);
-  border: 1px solid var(--paper);
+  border: var(--rule);
 }
 
 .stage {
   position: relative;
   aspect-ratio: 1044 / 520;
-  border-bottom: 1px solid var(--paper);
+  border-bottom: var(--rule);
   /* Clip the overflowing ERs without becoming a scroll container, so the
      stage never captures scroll gestures. */
   overflow: clip;
@@ -694,7 +1011,7 @@ main:focus {
 
 .readout {
   padding: 12px;
-  border-bottom: 1px solid var(--paper);
+  border-bottom: var(--rule);
   font-family: var(--mono);
   font-size: 0.875rem;
   letter-spacing: 0.02em;
@@ -707,7 +1024,7 @@ main:focus {
   align-items: center;
   gap: 8px;
   padding: 12px;
-  border-bottom: 1px solid var(--paper);
+  border-bottom: var(--rule);
 }
 
 .console-controls[hidden] {
@@ -738,6 +1055,8 @@ main:focus {
   height: calc(var(--term-lines) * var(--term-lh) + 24px);
   padding: 12px;
   overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--mono);
   font-size: 0.875rem;
   line-height: var(--term-lh);
@@ -767,7 +1086,6 @@ main:focus {
 }
 
 .term-cmd {
-  color: var(--paper);
   font-weight: 600;
 }
 
@@ -804,7 +1122,7 @@ main:focus {
   width: 0.6em;
   height: 1.1em;
   vertical-align: text-bottom;
-  background: var(--paper);
+  background: currentColor;
   animation: blink 1s steps(1, end) infinite;
 }
 
@@ -999,6 +1317,11 @@ main:focus {
   padding-left: var(--rail);
 }
 
+/* CSS fill overrides the presentation attribute; the paths stay untouched. */
+.site-footer .wordmark path[fill="#050505"] {
+  fill: var(--paper);
+}
+
 .wordmark--footer {
   width: min(320px, 70%);
   height: auto;
@@ -1025,16 +1348,6 @@ main:focus {
 .colophon {
   margin-top: 8px;
   color: var(--mute);
-}
-
-/* ---------- SEC.01 hero heading: "INTRODUCING." + wordmark ---------- */
-
-.hero-title {
-  display: block;
-}
-
-.hero-intro {
-  display: block;
 }
 
 /* ---------- SEC.02 naming history ---------- */
@@ -1332,8 +1645,12 @@ main:focus {
     bottom: 0;
     left: var(--rail);
     width: 1px;
-    background: var(--paper);
+    background: var(--ink-line);
     z-index: 3;
+  }
+
+  .site-footer::before {
+    background: var(--ink-line);
   }
 }
 
