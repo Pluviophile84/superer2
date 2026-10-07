@@ -882,7 +882,7 @@ main:focus {
 .upcoming {
   margin-top: 24px;
   padding: 14px;
-  background: var(--gray);
+  border: 1px solid var(--gray);
   color: var(--mute);
 }
 
